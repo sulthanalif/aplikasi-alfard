@@ -25,6 +25,13 @@ class DatabaseSeeder extends Seeder
             'manage-permissions',
             'manage-roles',
             'manage-logs',
+
+            'transactions',
+            'manage-sales',
+            'manage-po',
+
+            'manage-categories',
+            'manage-products',
         ];
 
         foreach ($permissions as $permission) {

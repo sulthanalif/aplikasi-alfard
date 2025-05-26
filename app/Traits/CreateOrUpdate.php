@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Storage;
 
 trait CreateOrUpdate
 {
+    use LogFormatter;
+
     public $recordId = null;
     public $model;
 
@@ -53,8 +55,10 @@ trait CreateOrUpdate
                 }
 
 
-                $record->fill($this->only(array_keys(array_diff_key($validationRules, array_flip(['image'])))));
+                $record->fill($this->only(array_keys(array_diff_key($validationRules, array_flip(['image', 'icon', 'file'])))));
                 $record->save();
+
+                $this->unsetRecordId();
             } else {
                 $record = new $this->model;
 
@@ -62,7 +66,7 @@ trait CreateOrUpdate
                     $beforeSave($record, $this);
                 }
 
-                $record->fill($this->only(array_keys(array_diff_key($validationRules, array_flip(['image'])))));
+                $record->fill($this->only(array_keys(array_diff_key($validationRules, array_flip(['image', 'icon', 'file'])))));
                 $record->save();
             }
             DB::commit();
@@ -78,7 +82,7 @@ trait CreateOrUpdate
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->error('Terjadi Kesalahan Pada Sistem', position: 'toast-bottom');
-            $this->errorLog('CreateOrUpdate', $th);
+            $this->logError($th);
         }
     }
 
@@ -107,8 +111,11 @@ trait CreateOrUpdate
                 $afterDelete($this->recordId, $this);
             }
 
+            $this->unsetRecordId();
+
             DB::commit();
             $this->success('Data deleted.', position: 'toast-bottom');
+            $this->modal = false;
         } catch (\Exception $th) {
             DB::rollBack();
             Log::channel('debug')->warning("An error occurred: " . $th->getMessage()." file: " . $th->getFile()." line: " . $th->getLine()." trace: " . $th->getTraceAsString());

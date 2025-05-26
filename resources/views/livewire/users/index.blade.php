@@ -20,7 +20,7 @@ new #[Title('Users')] class extends Component {
     public bool $modal = false;
 
     public int $perPage = 10;
-    public array $selected = [];
+    // public array $selected = [];
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
 
     public ?int $id = null;
@@ -52,9 +52,23 @@ new #[Title('Users')] class extends Component {
     }
 
     // Delete action
-    public function delete($id): void
+    public function delete(): void
     {
-        $this->warning("Will delete #$id", 'It is fake.', position: 'toast-bottom');
+        try {
+            DB::beginTransaction();
+
+            $user = User::find($this->id);
+
+            $user->delete();
+
+            DB::commit();
+
+            $this->success('User deleted successfully.', position: 'toast-bottom');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->error('Failed to delete user.', position: 'toast-bottom');
+            $this->logError('debug', 'Failed to delete user.', $th);
+        }
     }
 
     public function save(): void
@@ -144,6 +158,7 @@ new #[Title('Users')] class extends Component {
             $wire.name = '';
             $wire.email = '';
             $wire.password = '';
+            $wire.$refresh();
         });
 
         $js('edit', (user) => {
@@ -153,6 +168,7 @@ new #[Title('Users')] class extends Component {
             $wire.email = user.email;
             $wire.role_searchable_id = user.roles[0].id;
             $wire.password = '';
+            $wire.$refresh();
         });
     </script>
 @endscript
@@ -172,27 +188,14 @@ new #[Title('Users')] class extends Component {
     <!-- TABLE  -->
     <x-card class="mt-4" shadow>
         <x-table :headers="$headers" :rows="$users" :sort-by="$sortBy" per-page="perPage" :per-page-values="[10, 25, 50, 100]"
-            wire:model.live="selected" selectable with-pagination>
+            with-pagination @row-click="$js.edit($event.detail)">
             @scope('cell_role', $data)
                 <p>{{ $data->getRoleNames()->first() }}</p>
             @endscope
-            @scope('actions', $data)
-                <div class="flex gap-2">
-                    <x-button icon="fas.pencil" @click="$js.edit({{ $data }})"
-                        class="btn-ghost btn-sm text-primary" />
-                </div>
-            @endscope
         </x-table>
-
-        @if ($selected)
-            <div class="flex justify-end gap-2 mx-4 my-2">
-                <x-button label="Delete" wire:click="delete" wire:confirm="Are you sure?"
-                    spinner class=" btn-sm text-error" />
-            </div>
-        @endif
     </x-card>
 
-    <x-modal wire:model="modal" title="Form User" box-class="w-full h-fit max-w-[600px]">
+    <x-modal wire:model="modal" title="Form User" box-class="w-full h-fit max-w-[600px]" without-trap-focus>
         <x-form wire:submit="save" no-separator>
 
             <div>
@@ -219,6 +222,9 @@ new #[Title('Users')] class extends Component {
             </div>
 
             <x-slot:actions>
+                @if ($this->id)
+                    <x-button label="Delete" wire:click="delete" class="btn-error" wire:confirm="Are you sure?" />
+                @endif
                 <x-button label="save" type="submit" spinner="save" class="btn-primary" />
             </x-slot:actions>
         </x-form>

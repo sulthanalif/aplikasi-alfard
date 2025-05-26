@@ -15,11 +15,16 @@ Route::group(['middleware' => 'guest'], function () {
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/logout', LogoutController::class)->name('logout');
 
-    Volt::route('/dashboard', 'dashboard')->name('dashboard');
+    Volt::route('/dashboard', 'dashboard')->middleware('can:dashboard')->name('dashboard');
 
-    Volt::route('/users', 'users.index')->name('users');
+    Route::prefix('master')->group(function () {
+        Volt::route('/categories', 'categories.index')->middleware('can:manage-categories')->name('categories');
+        Volt::route('/products', 'products.index')->middleware('can:manage-products')->name('products');
+        Volt::route('/users', 'users.index')->middleware('can:manage-users')->name('users');
+    });
 
-    Volt::route('/roles', 'settings.roles.index')->middleware('can:manage-roles')->name('roles');
-
-    Volt::route('/permissions', 'settings.permissions.index')->middleware('can:manage-permissions')->name('permissions');
+    Route::prefix('options')->group(function () {
+        Volt::route('/roles', 'settings.roles.index')->middleware('can:manage-roles')->name('roles');
+        Volt::route('/permissions', 'settings.permissions.index')->middleware('can:manage-permissions')->name('permissions');
+    });
 });

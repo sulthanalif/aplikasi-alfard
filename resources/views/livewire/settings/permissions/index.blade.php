@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Mary\Traits\Toast;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
@@ -16,7 +17,7 @@ new #[Title('Permissions')] class extends Component {
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
     public int $perPage = 10;
-    public array $selected = [];
+    // public array $selected = [];
 
     public ?int $id = null;
     public string $name;
@@ -30,13 +31,26 @@ new #[Title('Permissions')] class extends Component {
         try {
             DB::beginTransaction();
 
-            Permission::updateOrCreate(['id' => $this->id], $input);
+            $permission = Permission::updateOrCreate(
+                ['id' => $this->id],
+                $input
+            );
+
+            // === Tambahan: Auto assign ke Role ID 1 ===
+            if ($permission->wasRecentlyCreated) {
+                $role = Role::find(1);
+                if ($role) {
+                    $role->givePermissionTo($permission);
+                }
+            }
 
             DB::commit();
+
             $this->success('Permission saved successfully.', position: 'toast-bottom');
             $this->modal = false;
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::channel('debug')->alert("message: {$e->getMessage()}");
             $this->error('Failed to save permission.', position: 'toast-bottom');
         }
     }
@@ -46,12 +60,15 @@ new #[Title('Permissions')] class extends Component {
         try {
             DB::beginTransaction();
 
-            Permission::destroy($this->selected);
+            $permission = Permission::find($this->id);
+
+            $permission->delete();
 
             DB::commit();
             $this->success('Permissions deleted successfully.', position: 'toast-bottom');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::channel('debug')->alert("message: {$e->getMessage()}");
             $this->error('Failed to delete permissions.', position: 'toast-bottom');
         }
     }
@@ -84,12 +101,14 @@ new #[Title('Permissions')] class extends Component {
             $wire.modal = true;
             $wire.id = null;
             $wire.name = '';
+            $wire.$refresh();
         });
 
         $js('edit', (permission) => {
             $wire.modal = true;
             $wire.id = permission.id;
             $wire.name = permission.name;
+            $wire.$refresh();
         });
     </script>
 @endscript
@@ -109,30 +128,20 @@ new #[Title('Permissions')] class extends Component {
     <!-- TABLE  -->
     <x-card class="mt-4" shadow>
         <x-table :headers="$headers" :rows="$datas" :sort-by="$sortBy" per-page="perPage" :per-page-values="[10, 25, 50, 100]"
-            wire:model.live="selected" selectable with-pagination>
-            @scope('actions', $data)
-                <div class="flex gap-2">
-                    <x-button icon="fas.pencil" @click="$js.edit({{ $data }})"
-                        class="btn-ghost btn-sm text-primary" />
-                </div>
-            @endscope
+            with-pagination @row-click="$js.edit($event.detail)">
         </x-table>
-
-        @if ($selected)
-            <div class="flex justify-end gap-2 mx-4 my-2">
-                <x-button label="Delete" wire:click="delete" wire:confirm="Are you sure?"
-                    spinner class=" btn-sm text-error" />
-            </div>
-        @endif
     </x-card>
 
-    <x-modal wire:model="modal" title="Form Permission">
+    <x-modal wire:model="modal" title="Form Permission" without-trap-focus>
         <x-form wire:submit="save" no-separator>
 
             <x-input label="Name" wire:model="name"  />
 
 
             <x-slot:actions>
+                @if ($this->id)
+                    <x-button label="Delete" wire:click="delete" class="btn-error" wire:confirm="Are you sure?" />
+                @endif
                 <x-button label="save" type="submit" spinner="save" class="btn-primary" />
             </x-slot:actions>
         </x-form>

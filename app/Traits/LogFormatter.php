@@ -21,11 +21,10 @@ trait LogFormatter
             ]);
     }
 
-    public function logError($channel, $message, $error)
+    public function logError($error)
     {
-        Log::channel($channel)->error($message, [
+        Log::channel('debug')->error($error->getMessage(), [
                 'ip_address' => request()->ip(),
-                'message' => $error->getMessage(),
                 'file' => $error->getFile(),
                 'line' => $error->getLine(),
             ]);

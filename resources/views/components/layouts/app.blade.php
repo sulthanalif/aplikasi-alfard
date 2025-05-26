@@ -7,6 +7,9 @@
     <title>{{ isset($title) ? $title.' - '.config('app.name') : config('app.name') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{--  Currency  --}}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/robsontenorio/mary@0.44.2/libs/currency/currency.js"></script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">
 
@@ -31,7 +34,7 @@
             <x-app-brand class="px-5 pt-4" />
 
             {{-- MENU --}}
-            <x-menu activate-by-route>
+            <x-menu  activate-by-route>
 
                 {{-- User --}}
                 @if($user = auth()->user())
@@ -58,5 +61,7 @@
 
     {{--  TOAST area --}}
     <x-toast />
+
+    @stack('scripts')
 </body>
 </html>

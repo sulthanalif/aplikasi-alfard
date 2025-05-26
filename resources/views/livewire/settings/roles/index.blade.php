@@ -17,7 +17,7 @@ new #[Title('Roles')] class extends Component {
     public string $search = '';
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
     public int $perPage = 10;
-    public array $selected = [];
+    // public array $selected = [];
     public bool $selectAllBool = false;
 
     public ?int $id = null;
@@ -68,6 +68,23 @@ new #[Title('Roles')] class extends Component {
             DB::rollBack();
             Log::debug("message: {$e->getMessage()}");
             $this->error('Failed to save role.', position: 'toast-bottom');
+        }
+    }
+
+    public function delete(): void
+    {
+        try {
+            DB::beginTransaction();
+
+            $role = Role::find($this->id);
+            $role->delete();
+
+            DB::commit();
+            $this->success('Role deleted successfully.', position: 'toast-bottom');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::debug("message: {$th->getMessage()}");
+            $this->error('Failed to delete role.', position: 'toast-bottom');
         }
     }
 
@@ -139,24 +156,11 @@ new #[Title('Roles')] class extends Component {
     <!-- TABLE  -->
     <x-card class="mt-4" shadow>
         <x-table :headers="$headers" :rows="$datas" :sort-by="$sortBy" per-page="perPage" :per-page-values="[10, 25, 50, 100]"
-            wire:model.live="selected" selectable with-pagination>
-            @scope('actions', $data)
-                <div class="flex gap-2">
-                    <x-button icon="fas.pencil" @click="$js.edit({{ $data }})"
-                        class="btn-ghost btn-sm text-primary" />
-                </div>
-            @endscope
+            with-pagination @row-click="$js.edit($event.detail)">
         </x-table>
-
-        @if ($selected)
-            <div class="flex justify-end gap-2 mx-4 my-2">
-                <x-button label="Delete" wire:click="delete" wire:confirm="Are you sure?"
-                    spinner class=" btn-sm text-error" />
-            </div>
-        @endif
     </x-card>
 
-    <x-modal wire:model="modal" title="Form Role">
+    <x-modal wire:model="modal" title="Form Role" without-trap-focus>
         <x-form wire:submit="save" no-separator>
 
             <x-input label="Name" wire:model="name"  />
@@ -174,6 +178,9 @@ new #[Title('Roles')] class extends Component {
                 @endforeach
             </div>
             <x-slot:actions>
+                @if ($this->id)
+                    <x-button label="Delete" wire:click="delete" class="btn-error" wire:confirm="Are you sure?" />
+                @endif
                 <x-button label="save" type="submit" spinner="save" class="btn-primary" />
             </x-slot:actions>
         </x-form>
