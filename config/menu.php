@@ -51,7 +51,7 @@ return [
             [
                 'title' => 'Sales',
                 'icon' => 'fas.cash-register',
-                'link' => '#',
+                'link' => 'sales',
                 'can'  => 'manage-sales',
             ],
             [

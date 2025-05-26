@@ -10,6 +10,18 @@
 
     {{--  Currency  --}}
     <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/robsontenorio/mary@0.44.2/libs/currency/currency.js"></script>
+    {{-- Flatpickr  --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    {{-- It will not apply locale yet  --}}
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ru.js"></script>
+
+    {{-- You need to set here the default locale or any global flatpickr settings--}}
+    <script>
+        flatpickr.localize(flatpickr.l10ns.id);
+    </script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">
 

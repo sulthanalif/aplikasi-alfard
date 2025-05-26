@@ -48,6 +48,22 @@ class DatabaseSeeder extends Seeder
 
         $superAdmin->assignRole($roleSuperAdmin);
 
+        $permission_customer = [
+            'dashboard',
+            'transactions',
+            'manage-sales',
+        ];
+
+        $roleCustomer = Role::create(['name' => 'customer']);
+        $roleCustomer->givePermissionTo($permission_customer);
+
+        User::factory()->create([
+            'name' => 'Customer',
+            'email' => 'customer@mail.com',
+            'customer_id' => 'CUST001',
+            'address' => 'Jl. Jend. Sudirman No. 1',
+        ])->assignRole($roleCustomer);
+
         $this->call([
             UnitSeeder::class,
             CategorySeeder::class,

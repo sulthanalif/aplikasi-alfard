@@ -24,6 +24,11 @@ Route::group(['middleware' => 'auth'], function () {
         Volt::route('/users', 'masters.users.index')->middleware('can:manage-users')->name('users');
     });
 
+    Route::prefix('transactions')->group(function () {
+        Volt::route('/sales', 'transactions.sales.index')->middleware('can:manage-sales')->name('sales');
+        Volt::route('/sales/form', 'transactions.sales.form')->middleware('can:manage-sales')->name('sales.form');
+    });
+
     Route::prefix('options')->group(function () {
         Volt::route('/roles', 'settings.roles.index')->middleware('can:manage-roles')->name('roles');
         Volt::route('/permissions', 'settings.permissions.index')->middleware('can:manage-permissions')->name('permissions');

@@ -20,11 +20,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'customer_id',
         'name',
         'email',
         'password',
         'address',
         'phone',
+        'status',
     ];
 
     /**
@@ -52,7 +54,7 @@ class User extends Authenticatable
 
     public function sales(): HasMany
     {
-        return $this->hasMany(Sales::class, 'customer_id', 'id');
+        return $this->hasMany(Sales::class, 'customer_id', 'customer_id');
     }
 
     public function salesApprove(): HasMany

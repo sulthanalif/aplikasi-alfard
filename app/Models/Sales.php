@@ -20,12 +20,13 @@ class Sales extends Model
         'quantity',
         'total_price',
         'approve_by',
+        'address',
         'status',
     ];
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'customer_id', 'id');
+        return $this->belongsTo(User::class, 'customer_id', 'customer_id');
     }
 
     public function product(): BelongsTo
