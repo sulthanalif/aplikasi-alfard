@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             'manage-po',
 
             'manage-categories',
+            'manage-units',
             'manage-products',
         ];
 
@@ -46,5 +47,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $superAdmin->assignRole($roleSuperAdmin);
+
+        $this->call([
+            UnitSeeder::class,
+            CategorySeeder::class,
+        ]);
     }
 }

@@ -9,6 +9,41 @@ return [
     ],
     [
         'type' => 'sub',
+        'title' => 'Master Data',
+        'icon' => 'fas.database',
+        'submenu' => [
+            [
+                'type' => 'item',
+                'title' => 'Categories',
+                'icon' => 'fas.tags',
+                'link' => 'categories',
+                'can'  => 'manage-products',
+            ],
+            [
+                'type' => 'item',
+                'title' => 'Units',
+                'icon' => 'fas.ruler-combined',
+                'link' => 'units',
+                'can'  => 'manage-units',
+            ],
+            [
+                'type' => 'item',
+                'title' => 'Products',
+                'icon' => 'fas.box',
+                'link' => 'products',
+                'can'  => 'manage-products',
+            ],
+            [
+                'type' => 'item',
+                'title' => 'Users',
+                'icon' => 'fas.users',
+                'link' => 'users',
+                'can'  => 'manage-users',
+            ],
+        ]
+    ],
+    [
+        'type' => 'sub',
         'title' => 'Transactions',
         'icon' => 'fas.cart-shopping',
         'can'  => 'transactions',
@@ -24,34 +59,6 @@ return [
                 'icon' => 'fas.bag-shopping',
                 'link' => '#',
                 'can'  => 'manage-po',
-            ],
-        ]
-    ],
-    [
-        'type' => 'sub',
-        'title' => 'Master Data',
-        'icon' => 'fas.database',
-        'submenu' => [
-            [
-                'type' => 'item',
-                'title' => 'Categories',
-                'icon' => 'fas.tags',
-                'link' => 'categories',
-                'can'  => 'manage-products',
-            ],
-            [
-                'type' => 'item',
-                'title' => 'Products',
-                'icon' => 'fas.box',
-                'link' => 'products',
-                'can'  => 'manage-products',
-            ],
-            [
-                'type' => 'item',
-                'title' => 'Users',
-                'icon' => 'fas.users',
-                'link' => 'users',
-                'can'  => 'manage-users',
             ],
         ]
     ],

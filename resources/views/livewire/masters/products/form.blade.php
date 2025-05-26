@@ -9,15 +9,27 @@
             <x-input label="Name" wire:model="name"  />
         </div>
 
-        <div>
-            <x-choices-offline
-            label="Category"
-            wire:model="category_id"
-            :options="$categoriesSearchable"
-            placeholder="Search ..."
-            search-function="searchCategory"
-            single
-            searchable />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+                <x-choices-offline
+                label="Category"
+                wire:model="category_id"
+                :options="$categoriesSearchable"
+                placeholder="Search ..."
+                search-function="searchCategory"
+                single
+                searchable />
+            </div>
+            <div>
+                <x-choices-offline
+                label="Unit"
+                wire:model="unit_id"
+                :options="$unitsSearchable"
+                placeholder="Search ..."
+                search-function="searchUnit"
+                single
+                searchable />
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">

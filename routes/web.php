@@ -18,9 +18,10 @@ Route::group(['middleware' => 'auth'], function () {
     Volt::route('/dashboard', 'dashboard')->middleware('can:dashboard')->name('dashboard');
 
     Route::prefix('master')->group(function () {
-        Volt::route('/categories', 'categories.index')->middleware('can:manage-categories')->name('categories');
-        Volt::route('/products', 'products.index')->middleware('can:manage-products')->name('products');
-        Volt::route('/users', 'users.index')->middleware('can:manage-users')->name('users');
+        Volt::route('/categories', 'masters.categories.index')->middleware('can:manage-categories')->name('categories');
+        Volt::route('/units', 'masters.units.index')->middleware('can:manage-products')->name('units');
+        Volt::route('/products', 'masters.products.index')->middleware('can:manage-products')->name('products');
+        Volt::route('/users', 'masters.users.index')->middleware('can:manage-users')->name('users');
     });
 
     Route::prefix('options')->group(function () {

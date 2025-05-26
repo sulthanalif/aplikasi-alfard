@@ -1,15 +1,13 @@
 <?php
 
+use App\Models\Unit;
 use Mary\Traits\Toast;
-use App\Models\Category;
-use Illuminate\Support\Str;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Traits\CreateOrUpdate;
-use Livewire\Attributes\Title;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-new #[Title('Categories')] class extends Component {
+new class extends Component {
     use Toast, CreateOrUpdate, WithPagination;
 
     public bool $modal = false;
@@ -24,7 +22,7 @@ new #[Title('Categories')] class extends Component {
 
     public function mount(): void
     {
-        $this->setModel(new Category());
+        $this->setModel(new Unit());
     }
 
     public function save(): void
@@ -33,13 +31,10 @@ new #[Title('Categories')] class extends Component {
             validationRules: [
                 'name' => ['required', 'string', 'max:50'],
                 'description' => ['nullable', 'string', 'max:255'],
-            ],
-            beforeSave: function ($record, $component) {
-                $record->slug = Str::slug($component->name);
-            }
+                'status' => ['required', 'boolean'],
+            ]
         );
     }
-
 
     public function delete(): void
     {
@@ -48,7 +43,7 @@ new #[Title('Categories')] class extends Component {
 
     public function datas(): LengthAwarePaginator
     {
-        return Category::query()
+        return Unit::query()
             ->where('name', 'like', "%{$this->search}%")
             ->orderBy($this->sortBy['column'], $this->sortBy['direction'])
             ->paginate($this->perPage);
@@ -85,22 +80,20 @@ new #[Title('Categories')] class extends Component {
             $wire.$refresh();
         });
 
-        $js('edit', (category) => {
+        $js('edit', (unit) => {
             $wire.modal = true;
-            console.log(category);
-
-            $wire.recordId = category.id;
-            $wire.name = category.name;
-            $wire.description = category.description;
-            $wire.status = category.status;
+            $wire.recordId = unit.id;
+            $wire.name = unit.name;
+            $wire.description = unit.description;
+            $wire.status = unit.status;
             $wire.$refresh();
         });
     </script>
 @endscript
 
 <div>
-    <!-- HEADER -->
-    <x-header title="Categories" separator>
+<!-- HEADER -->
+    <x-header title="Units" separator>
         <x-slot:actions>
             <x-button label="Create" @click="$js.create" responsive icon="fas.plus" />
         </x-slot:actions>
@@ -123,5 +116,5 @@ new #[Title('Categories')] class extends Component {
         </x-table>
     </x-card>
 
-    @include('livewire.categories.form')
+    @include('livewire.masters.units.form')
 </div>
