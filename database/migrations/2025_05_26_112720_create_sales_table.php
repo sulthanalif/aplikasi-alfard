@@ -16,8 +16,6 @@ return new class extends Migration
             $table->string('invoice')->unique();
             $table->text('date');
             $table->string('customer_id')->nullable();
-            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
-            $table->integer('quantity');
             $table->decimal('total_price', 13, 2);
             $table->text('address')->nullable();
             $table->foreignId('approve_by')->nullable()->constrained('users')->nullOnDelete();

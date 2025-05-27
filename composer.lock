@@ -3883,16 +3883,16 @@
         },
         {
             "name": "robsontenorio/mary",
-            "version": "2.0.1",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/robsontenorio/mary.git",
-                "reference": "4605de51a3f0c19f4f14fc194a98ba3d3ec4cd13"
+                "reference": "7c92f2a7b95c86813680032008f2e9950368c7b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/robsontenorio/mary/zipball/4605de51a3f0c19f4f14fc194a98ba3d3ec4cd13",
-                "reference": "4605de51a3f0c19f4f14fc194a98ba3d3ec4cd13",
+                "url": "https://api.github.com/repos/robsontenorio/mary/zipball/7c92f2a7b95c86813680032008f2e9950368c7b7",
+                "reference": "7c92f2a7b95c86813680032008f2e9950368c7b7",
                 "shasum": ""
             },
             "require": {
@@ -3958,7 +3958,7 @@
             ],
             "support": {
                 "issues": "https://github.com/robsontenorio/mary/issues",
-                "source": "https://github.com/robsontenorio/mary/tree/2.0.1"
+                "source": "https://github.com/robsontenorio/mary/tree/2.4.0"
             },
             "funding": [
                 {
@@ -3966,7 +3966,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-01T05:21:23+00:00"
+            "time": "2025-05-08T20:32:45+00:00"
         },
         {
             "name": "spatie/laravel-permission",

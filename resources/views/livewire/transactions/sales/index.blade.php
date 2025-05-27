@@ -11,12 +11,17 @@ new #[Title('Sales')] class extends Component {
     use Toast, WithPagination;
 
     public string $search = '';
-    public array $sortBy = ['column' => 'created_at', 'direction' => 'asc'];
+    public array $sortBy = ['column' => 'date', 'direction' => 'desc'];
     public int $perPage = 10;
 
     public function create(): void
     {
         $this->redirect(route('sales.form'), navigate: true);
+    }
+
+    public function detail(Sales $sales): void
+    {
+        $this->redirect(route('sales.detail', $sales), navigate: true);
     }
 
     public function datas(): LengthAwarePaginator
@@ -74,7 +79,7 @@ new #[Title('Sales')] class extends Component {
     <!-- TABLE  -->
     <x-card class="mt-4" shadow>
         <x-table :headers="$headers" :rows="$datas" :sort-by="$sortBy" per-page="perPage" :per-page-values="[10, 25, 50, 100]"
-            with-pagination show-empty-text @row-click="$js.edit($event.detail)">
+            with-pagination show-empty-text @row-click="$wire.detail($event.detail)">
             @scope('cell_date', $data)
                 <p>{{ \Carbon\Carbon::parse($data->date)->locale('id')->translatedFormat('d F Y') }}</p>
             @endscope

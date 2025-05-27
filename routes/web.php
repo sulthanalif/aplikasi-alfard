@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::prefix('transactions')->group(function () {
         Volt::route('/sales', 'transactions.sales.index')->middleware('can:manage-sales')->name('sales');
         Volt::route('/sales/form', 'transactions.sales.form')->middleware('can:manage-sales')->name('sales.form');
+        Volt::route('/sales/{sales:invoice}/detail', 'transactions.sales.detail')->middleware('can:manage-sales')->name('sales.detail');
     });
 
     Route::prefix('options')->group(function () {
