@@ -285,7 +285,8 @@ new #[Title('Form Sales')] class extends Component {
                             <x-slot:footer class="bg-base-200 text-center">
                                 <tr>
                                     <td colspan="4">Total Price</td>
-                                    <td>Rp {{ number_format($total_price, 0, ',', '.') }}</td>
+                                    <td class="text-left">Rp {{ number_format($total_price, 0, ',', '.') }}</td>
+                                    <td></td>
                                 </tr>
                             </x-slot:footer>
                         @endif

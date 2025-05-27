@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('customer_id')->nullable();
             $table->decimal('total_price', 13, 2);
             $table->text('address')->nullable();
-            $table->foreignId('approve_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('action_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('note')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->softDeletes();
             $table->timestamps();

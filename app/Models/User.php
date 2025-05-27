@@ -59,6 +59,6 @@ class User extends Authenticatable
 
     public function salesApprove(): HasMany
     {
-        return $this->hasMany(Sales::class, 'approve_by', 'id');
+        return $this->hasMany(Sales::class, 'action_by', 'id');
     }
 }

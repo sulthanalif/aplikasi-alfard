@@ -18,9 +18,10 @@ class Sales extends Model
         'date',
         'customer_id',
         'total_price',
-        'approve_by',
+        'action_by',
         'address',
         'status',
+        'note',
     ];
 
     protected static function boot()
@@ -48,9 +49,9 @@ class Sales extends Model
         return $this->belongsTo(User::class, 'customer_id', 'customer_id');
     }
 
-    public function approveBy(): BelongsTo
+    public function actionBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approve_by', 'id');
+        return $this->belongsTo(User::class, 'action_by', 'id');
     }
 
     public function details(): HasMany

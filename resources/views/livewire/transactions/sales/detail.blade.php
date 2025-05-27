@@ -1,18 +1,25 @@
 <?php
 
 use App\Models\Sales;
+use Mary\Traits\Toast;
+use App\Traits\LogFormatter;
 use Livewire\Volt\Component;
+use Livewire\Attributes\Title;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
-new class extends Component {
-
+new #[Title('Detail Sales')] class extends Component {
+    use Toast, LogFormatter;
 
     public array $productSelected = [];
     public Sales $sales;
+    public bool $modal = false;
+    public ?string $note = null;
 
     public function mount(Sales $sales): void
     {
         $this->sales = $sales;
+
         $this->productSelected = $sales->details->map(function ($detail) {
             return [
                 'product_id' => $detail->product_id,
@@ -23,15 +30,45 @@ new class extends Component {
                 'subtotal' => $detail->subtotal,
             ];
         })->toArray();
-
-        // dd($this->productSelected);
     }
 
     public function back(): void
     {
         $this->redirect(route('sales'), navigate: true);
     }
+
+    public function action(string $action = ''): void
+    {
+        if ($action == 'approved') $this->note = null;
+
+        try {
+            DB::beginTransaction();
+
+            $this->sales->update([
+                'status' => $action,
+                'action_by' => auth()->user()->id,
+                'note' => $this->note ?? null,
+            ]);
+
+            DB::commit();
+
+            $this->success('Sales '.$action.' successfully.', position: 'toast-bottom');
+            $this->modal = false;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->error('Failed to update sales.', position: 'toast-bottom');
+            $this->logError('debug', 'Failed to update sales.', $th);
+        }
+    }
 }; ?>
+
+@script
+    <script>
+        $js('rejected', () => {
+            $wire.modal = true;
+        })
+    </script>
+@endscript
 
 <div>
     <!-- HEADER -->
@@ -66,7 +103,10 @@ new class extends Component {
                 <p>{{ \Carbon\Carbon::parse($this->sales->date)->locale('id')->translatedFormat('d F Y') }}</p>
 
                 <p class="font-bold">Status</p>
-                <p>{{ $this->sales->status }}</p>
+                <x-status :status="$this->sales->status" />
+
+                <p class="font-bold">Note</p>
+                <p>{{ $this->sales->note ?? '-' }}</p>
             </div>
         </x-card>
     </div>
@@ -111,6 +151,23 @@ new class extends Component {
                     </x-slot:footer>
                 @endif
             </x-table>
+            @if ($this->sales->status == 'pending')
+            <x-slot:actions>
+                <x-button label="Reject" class="btn-error text-white" @click="$js.rejected" responsive spinner="action('rejected')" />
+                <x-button label="Approve" class="btn-success text-white" @click="$wire.action('approved')" responsive spinner="action('approved')" />
+            </x-slot:actions>
+            @endif
         </x-card>
     </div>
+    <x-modal wire:model="modal" title="Reject Note" without-trap-focus>
+        <x-form wire:submit="action('rejected')" no-separator>
+
+            <x-textarea label="Note" wire:model="note" rows='5' required/>
+
+
+            <x-slot:actions>
+                <x-button label="Submit" type="submit" spinner="action('rejected')" class="btn-primary" />
+            </x-slot:actions>
+        </x-form>
+    </x-modal>
 </div>

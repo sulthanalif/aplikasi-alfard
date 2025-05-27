@@ -28,13 +28,13 @@ new #[Title('Sales')] class extends Component {
     {
         return Sales::query()
             ->withAggregate('customer', 'name')
-            ->withAggregate('approveBy', 'name')
+            ->withAggregate('actionBy', 'name')
             ->where('invoice', 'like', "%{$this->search}%")
             ->orWhere('date', 'like', "%{$this->search}%")
             ->orWhereHas('customer', function($query) {
                 $query->where('name', 'like', "%{$this->search}%");
             })
-            ->orWhereHas('approveBy', function($query) {
+            ->orWhereHas('actionBy', function($query) {
                 $query->where('name', 'like', "%{$this->search}%");
             })
             ->orderBy($this->sortBy['column'], $this->sortBy['direction'])
@@ -49,7 +49,7 @@ new #[Title('Sales')] class extends Component {
             ['key' => 'customer_name', 'label' => 'Customer'],
             ['key' => 'total_price', 'label' => 'Total Price'],
             ['key' => 'status', 'label' => 'Status'],
-            ['key' => 'approve_by_name', 'label' => 'Approve by'],
+            ['key' => 'action_by_name', 'label' => 'Action by'],
             ['key' => 'created_at', 'label' => 'Created at'],
         ];
     }
@@ -87,7 +87,10 @@ new #[Title('Sales')] class extends Component {
                 <p>Rp {{ number_format($data->total_price, 0, ',', '.') }}</p>
             @endscope
             @scope('cell_status', $data)
-                <p>{{ $data->status ? 'Active' : 'Inactive' }}</p>
+                <x-status :status="$data->status" />
+            @endscope
+            @scope('cell_action_by_name', $data)
+                <p>{{ $data->actionBy ? $data->actionBy->name : '-' }}</p>
             @endscope
             @scope('cell_created_at', $data)
                 <p>{{ \Carbon\Carbon::parse($data->created_at)->locale('id')->translatedFormat('d F Y') }}</p>
