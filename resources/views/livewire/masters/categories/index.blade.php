@@ -3,20 +3,29 @@
 use Mary\Traits\Toast;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use App\Exports\ExportDatas;
+use App\Imports\ImportDatas;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Traits\CreateOrUpdate;
 use Livewire\Attributes\Title;
+use Illuminate\Http\UploadedFile;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 new #[Title('Categories')] class extends Component {
-    use Toast, CreateOrUpdate, WithPagination;
+    use Toast, CreateOrUpdate, WithPagination, WithFileUploads;
 
     public bool $modal = false;
+    public bool $modalImport = false;
 
     public string $search = '';
     public array $sortBy = ['column' => 'created_at', 'direction' => 'asc'];
     public int $perPage = 10;
+
+    public ?UploadedFile $file = null;
 
     public string $name = '';
     public string $description = '';
@@ -25,6 +34,53 @@ new #[Title('Categories')] class extends Component {
     public function mount(): void
     {
         $this->setModel(new Category());
+    }
+
+    public function import()
+    {
+        $this->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new ImportDatas($this->model, [
+                'name' => ['required', 'string', 'max:50'],
+                'description' => ['nullable', 'string', 'max:255'],
+            ], ['image', 'status']), $this->file);
+
+            $this->success('Data imported successfully!', position: 'toast-bottom');
+        } catch (ValidationException $e) {
+            $this->error($e->validator->errors()->first(), position: 'toast-bottom');
+        } catch (\Exception $e) {
+            $this->logError($e);
+        }
+    }
+
+    public function export()
+    {
+        $datas = $this->model->all();
+
+        if (empty($datas)) return $this->error('No data found!', position: 'toast-bottom');
+
+        try {
+            $datas = $datas->map(function ($data) {
+               return [
+                    'slug' => $data->slug,
+                    'name' => $data->name,
+                    'description' => $data->description,
+                    'status' => $data->status ? 'Active' : 'Inactive',
+                    'created_at' => $data->created_at,
+               ];
+            });
+
+            $headers = ['SLUG', 'NAME', 'DESCRIPTION', 'STATUS', 'CREATED_AT'];
+
+            $this->success('Data exported successfully!', position: 'toast-bottom');
+            return Excel::download(new ExportDatas($datas, 'Categories', $headers), 'categories.xlsx');
+        } catch (\Throwable $th) {
+            $this->logError($th);
+            $this->error('Failed to export data.', position: 'toast-bottom');
+        }
     }
 
     public function save(): void
@@ -93,6 +149,11 @@ new #[Title('Categories')] class extends Component {
             $wire.status = category.status;
             $wire.$refresh();
         });
+
+        $js('import', () => {
+            $wire.modalImport = true;
+            $wire.$refresh();
+        })
     </script>
 @endscript
 
@@ -100,6 +161,8 @@ new #[Title('Categories')] class extends Component {
     <!-- HEADER -->
     <x-header title="Categories" separator>
         <x-slot:actions>
+            <x-button label="Import" @click="$js.import" responsive icon="fas.file-import" spinner="import" />
+            <x-button label="Export" @click="$wire.export" responsive icon="fas.file-export" spinner="export" />
             <x-button label="Create" @click="$js.create" responsive icon="fas.plus" />
         </x-slot:actions>
     </x-header>
@@ -122,4 +185,5 @@ new #[Title('Categories')] class extends Component {
     </x-card>
 
     @include('livewire.masters.categories.form')
+    <x-modalimport wire:model="modalImport" />
 </div>

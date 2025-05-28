@@ -2,9 +2,11 @@
 
 use App\Models\Unit;
 use Mary\Traits\Toast;
+use App\Exports\ExportDatas;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Traits\CreateOrUpdate;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 new class extends Component {
@@ -23,6 +25,35 @@ new class extends Component {
     public function mount(): void
     {
         $this->setModel(new Unit());
+    }
+
+    public function export()
+    {
+        $datas = $this->model->all();
+
+        if (empty($datas)) return $this->error('No data found!', position: 'toast-bottom');
+
+        try {
+            $datas = $datas->map(function ($data) {
+               return [
+                    'name' => $data->name,
+                    'description' => $data->description,
+                    'status' => $data->status ? 'Active' : 'Inactive',
+                    'created_at' => $data->created_at,
+                ];
+            });
+
+            $headers = [
+                'NAME', 'DESCRIPTION', 'STATUS', 'CREATED_AT'
+            ];
+
+            $this->success('Data exported successfully!', position: 'toast-bottom');
+            return Excel::download(new ExportDatas($datas, 'Units', $headers), 'units.xlsx');
+
+        } catch (\Exception $e) {
+            $this->logError($e);
+            $this->error('Failed to export data!', position: 'toast-bottom');
+        }
     }
 
     public function save(): void
@@ -95,6 +126,7 @@ new class extends Component {
 <!-- HEADER -->
     <x-header title="Units" separator>
         <x-slot:actions>
+            <x-button label="Export" @click="$wire.export" responsive icon="fas.file-export" spinner="export" />
             <x-button label="Create" @click="$js.create" responsive icon="fas.plus" />
         </x-slot:actions>
     </x-header>
