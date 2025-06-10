@@ -11,7 +11,7 @@ use Livewire\WithFileUploads;
 use App\Traits\CreateOrUpdate;
 use Livewire\Attributes\Title;
 use Illuminate\Http\UploadedFile;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ExportDatasTemplate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -36,25 +36,33 @@ new #[Title('Categories')] class extends Component {
         $this->setModel(new Category());
     }
 
+    public function downloadTemplate()
+    {
+        return Excel::download(new ExportDatasTemplate($this->model, 'Categories Template', ['slug', 'status']), 'template-categories.xlsx');
+    }
+
     public function import()
     {
         $this->validate([
             'file' => 'required|file|mimes:xlsx,xls',
         ]);
 
+        // // Debug file
+        // dd([
+        //     'file' => $this->file,
+        //     'name' => $this->file?->getClientOriginalName(),
+        // ]);
+
         try {
-            Excel::import(new ImportDatas($this->model, [
-                'name' => ['required', 'string', 'max:50'],
-                'description' => ['nullable', 'string', 'max:255'],
-            ], ['image', 'status']), $this->file);
+            Excel::import(new ImportDatas(new Category(), ['slug', 'status']), $this->file);
 
             $this->success('Data imported successfully!', position: 'toast-bottom');
-        } catch (ValidationException $e) {
-            $this->error($e->validator->errors()->first(), position: 'toast-bottom');
         } catch (\Exception $e) {
             $this->logError($e);
+            $this->error('Failed to import data.', position: 'toast-bottom');
         }
     }
+
 
     public function export()
     {

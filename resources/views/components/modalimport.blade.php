@@ -4,7 +4,7 @@
             <x-file wire:model="file" hint="Hanya File Excel" accept=".xlsx" required />
         </div>
         <x-slot:actions>
-            {{-- <x-button label="Download Template" @click="$wire.downloadTemplate" spinner='downloadTemplate' /> --}}
+            <x-button label="Download Template" @click="$wire.downloadTemplate" spinner='downloadTemplate' />
             <x-button label="Import" class="btn-primary" type="submit" spinner="import" />
         </x-slot:actions>
     </x-form>

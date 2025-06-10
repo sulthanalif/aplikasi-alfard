@@ -2,44 +2,58 @@
 
 namespace App\Imports;
 
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Database\Eloquent\Model;
+use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class ImportDatas implements ToCollection
+class ImportDatas implements ToModel, WithHeadingRow, WithStartRow
 {
     protected Model $model;
-    protected array $rules;
     protected array $except;
 
-    public function __construct(Model $model, array $rules = [], array $except = [])
+    public function __construct(Model $model, array $except = [])
     {
         $this->model = $model;
-        $this->rules = $rules;
         $this->except = $except;
     }
 
-    public function collection(Collection $rows)
+    /**
+     * Start row untuk header row.
+     * 2 = baris kedua (karena baris pertama adalah judul).
+     */
+    public function startRow(): int
     {
-        $headings = $rows->get(1); // baris kedua (key data)
-        $dataRows = $rows->slice(2); // data mulai baris ke-3
+        return 2;
+    }
 
-        $fillable = array_diff($this->model->getFillable(), $this->except);
+    /**
+     * Proses setiap row dari Excel ke model.
+     *
+     * @param array $row
+     * @return Model|null
+     */
+    public function model(array $row)
+    {
+        try {
+            $fillable = collect($this->model->getFillable())
+                ->reject(fn ($field) => in_array($field, $this->except))
+                ->toArray();
 
-        foreach ($dataRows as $index => $row) {
-            $rowData = $headings->combine($row)->toArray();
+            // Normalisasi key agar lowercase (optional)
+            $normalizedRow = collect($row)
+                ->mapWithKeys(fn ($value, $key) => [strtolower($key) => $value])
+                ->toArray();
 
-            // Ambil data yang sesuai fillable & tidak termasuk $except
-            $filteredData = array_intersect_key($rowData, array_flip($fillable));
+            // Filter agar hanya yang termasuk fillable
+            $filteredData = array_intersect_key($normalizedRow, array_flip($fillable));
 
-            // Validasi (jika ada)
-            if ($this->rules) {
-                Validator::make($filteredData, $this->rules)->validate();
+            if (!empty($filteredData)) {
+                return $this->model->newInstance($filteredData);
             }
-
-            $this->model->create($filteredData);
+        } catch (\Throwable $th) {
+            return Log::chennel('debug')->error("Import error on row: " . json_encode($row) . " - " . $th->getMessage());
         }
     }
 }

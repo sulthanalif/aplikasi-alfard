@@ -21,7 +21,7 @@ class ExportDatas implements FromCollection, WithHeadings, WithStyles, WithEvent
     private $title;
     private $headers;
 
-    public function __construct($datas, $title, $headers)
+    public function __construct($datas = null, $title, $headers)
     {
         $this->datas = $datas;
         $this->title = $title;

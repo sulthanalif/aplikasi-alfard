@@ -13,11 +13,19 @@ class Category extends Model
     protected $table = 'categories';
 
     protected $fillable = [
-        'slug',
         'name',
         'description',
         'status'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($category) {
+            $category->slug = \Str::slug($category->name);
+        });
+    }
 
     public function products(): HasMany
     {
