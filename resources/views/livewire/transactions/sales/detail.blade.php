@@ -420,7 +420,7 @@ new #[Title('Detail Sales')] class extends Component {
 
             <x-datepicker label="Date" wire:model="date" icon="o-calendar" />
 
-            <x-input label="Amount" wire:model="amount" type="number" required />
+            <x-input label="Amount" wire:model="amount" type="number" max='{{ $this->amount }}' required />
             {{-- <x-select label="Method" wire:model="method" :options="['cash', 'transfer']" required /> --}}
 
             <x-choices-offline
