@@ -28,6 +28,10 @@ Route::group(['middleware' => 'auth'], function () {
         Volt::route('/sales', 'transactions.sales.index')->middleware('can:manage-sales')->name('sales');
         Volt::route('/sales/form', 'transactions.sales.form')->middleware('can:manage-sales')->name('sales.form');
         Volt::route('/sales/{sales:invoice}/detail', 'transactions.sales.detail')->middleware('can:manage-sales')->name('sales.detail');
+
+        Volt::route('/po', 'transactions.po.index')->middleware('can:manage-po')->name('po');
+        Volt::route('/po/form', 'transactions.po.form')->middleware('can:manage-po')->name('po.form');
+        Volt::route('/po/{po:invoice}/detail', 'transactions.po.detail')->middleware('can:manage-po')->name('po.detail');
     });
 
     Route::prefix('options')->group(function () {

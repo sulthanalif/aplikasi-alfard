@@ -57,7 +57,7 @@ return [
             [
                 'title' => 'Purchase Order',
                 'icon' => 'fas.bag-shopping',
-                'link' => '#',
+                'link' => 'po',
                 'can'  => 'manage-po',
             ],
         ]
