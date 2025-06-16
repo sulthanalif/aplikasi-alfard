@@ -128,10 +128,11 @@ new #[Title('Form Sales')] class extends Component {
 
     public function save(): void
     {
+
         $data = $this->validate([
             'date' => ['required', 'date'],
             'address' => ['required', 'string', 'max:255'],
-            'customer_id' => ['required', 'exists:users,id'],
+            'customer_id' => ['required', 'exists:users,customer_id'],
             'productSelected' => ['required', 'array', 'min:1'],
             'productSelected.*.product_id' => ['required', 'exists:products,id'],
             'productSelected.*.qty' => ['required', 'numeric', 'min:1'],
@@ -139,12 +140,13 @@ new #[Title('Form Sales')] class extends Component {
             'total_price' => ['required', 'numeric', 'min:1']
         ]);
 
+
         try {
             DB::beginTransaction();
 
             $sales = Sales::create([
                 'date' => $data['date'],
-                'customer_id' => User::find($data['customer_id'])->customer_id,
+                'customer_id' => $data['customer_id'],
                 'address' => $this->address,
                 'total_price' => $data['total_price'],
             ]);

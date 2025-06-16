@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $roleSuperAdmin = Role::create(['name' => 'super-admin']);
+        $roleAdmin = Role::create(['name' => 'admin']);
+        $roleDriver = Role::create(['name' => 'driver']);
+        $roleManager = Role::create(['name' => 'manager']);
 
 
         $permissions = [
@@ -28,11 +31,16 @@ class DatabaseSeeder extends Seeder
 
             'transactions',
             'manage-sales',
+            'approve-sales',
             'manage-po',
 
             'manage-categories',
             'manage-units',
             'manage-products',
+
+            'payment',
+            'manage-delivery',
+            'approve-delivery',
         ];
 
         foreach ($permissions as $permission) {
@@ -52,10 +60,40 @@ class DatabaseSeeder extends Seeder
             'dashboard',
             'transactions',
             'manage-sales',
+            'payment',
+        ];
+
+        $permission_admin = [
+            'dashboard',
+
+            'transactions',
+            'manage-sales',
+            'manage-po',
+
+            'manage-categories',
+            'manage-units',
+            'manage-products',
+            'approve-sales',
+
+            'payment',
+            'manage-delivery',
+            'approve-delivery',
+        ];
+
+        $permission_driver = [
+            'dashboard',
+            'transactions',
+            'manage-delivery',
         ];
 
         $roleCustomer = Role::create(['name' => 'customer']);
         $roleCustomer->givePermissionTo($permission_customer);
+
+        $roleAdmin->givePermissionTo($permission_admin);
+
+        $roleDriver->givePermissionTo($permission_driver);
+
+        $roleManager->givePermissionTo($permission_admin);
 
         User::factory()->create([
             'name' => 'Customer',
@@ -64,9 +102,25 @@ class DatabaseSeeder extends Seeder
             'address' => 'Jl. Jend. Sudirman No. 1',
         ])->assignRole($roleCustomer);
 
+        User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@mail.com',
+        ])->assignRole($roleAdmin);
+
+        User::factory()->create([
+            'name' => 'Driver',
+            'email' => 'driver@mail.com',
+        ])->assignRole($roleDriver);
+
+        User::factory()->create([
+            'name' => 'Manager',
+            'email' => 'manager@mail.com',
+        ])->assignRole($roleManager);
+
         $this->call([
             UnitSeeder::class,
             CategorySeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }
