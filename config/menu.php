@@ -63,6 +63,12 @@ return [
         ]
     ],
     [
+        'type' => 'item',
+        'title' => 'Distributions',
+        'icon' => 'fas.truck-pickup',
+        'link' => '#',
+    ],
+    [
         'type' => 'sub',
         'title' => 'Settings',
         'icon' => 'fas.gear',

@@ -19,8 +19,8 @@ class PurchaseOrder extends Model
     {
         parent::boot();
 
-        static::creating(function ($sales) {
-            $sales->invoice = self::generateInvoice();
+        static::creating(function ($po) {
+            $po->invoice = self::generateInvoice();
         });
     }
 
