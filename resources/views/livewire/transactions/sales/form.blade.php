@@ -28,12 +28,10 @@ new #[Title('Form Sales')] class extends Component {
     {
         $this->date = now()->format('Y-m-d');
         $this->searchProduct();
-
+        $this->searchCustomer();
         if (auth()->user()->hasRole('customer')) {
-            $this->customer_id = auth()->user()->customer_id;
+            $this->customer_id = auth()->user()->id;
             $this->address = auth()->user()->address;
-        } else {
-            $this->searchCustomer();
         }
 
     }
@@ -128,11 +126,11 @@ new #[Title('Form Sales')] class extends Component {
 
     public function save(): void
     {
-
+        // dd($this->customer_id);
         $data = $this->validate([
             'date' => ['required', 'date'],
             'address' => ['required', 'string', 'max:255'],
-            'customer_id' => ['required', 'exists:users,customer_id'],
+            'customer_id' => ['required', 'exists:users,id'],
             'productSelected' => ['required', 'array', 'min:1'],
             'productSelected.*.product_id' => ['required', 'exists:products,id'],
             'productSelected.*.qty' => ['required', 'numeric', 'min:1'],
@@ -146,7 +144,7 @@ new #[Title('Form Sales')] class extends Component {
 
             $sales = Sales::create([
                 'date' => $data['date'],
-                'customer_id' => $data['customer_id'],
+                'customer_id' => User::find($data['customer_id'])->customer_id,
                 'address' => $this->address,
                 'total_price' => $data['total_price'],
             ]);
@@ -190,7 +188,30 @@ new #[Title('Form Sales')] class extends Component {
                 </div>
                 <div>
                     @role('customer')
-                        <x-input label="Customer" wire:model='customer_id' disabled />
+                        <x-choices-offline
+                        label="Customer"
+                        wire:model="customer_id"
+                        :options="$customers"
+                        placeholder="Search ..."
+                        search-function="searchCustomer"
+                        @change-selection="$wire.customerSelected($event.detail.value)"
+                        debounce="300ms"
+                        min-chars="5"
+                        disabled
+                        single
+                        clearable
+                        values-as-string
+                        searchable >
+                        {{-- Item slot --}}
+                        @scope('item', $user)
+                            <x-list-item :item="$user" value="customer_id" sub-value="name" />
+                        @endscope
+
+                        {{-- Selection slot--}}
+                        @scope('selection', $user)
+                            {{ $user->customer_id }} ({{ $user->name }})
+                        @endscope
+                        </x-choices-offline>
                     @else
                         <x-choices-offline
                         label="Customer"
@@ -201,6 +222,7 @@ new #[Title('Form Sales')] class extends Component {
                         @change-selection="$wire.customerSelected($event.detail.value)"
                         debounce="300ms"
                         min-chars="5"
+
                         single
                         clearable
                         values-as-string

@@ -2,23 +2,60 @@
 
 use App\Models\Sales;
 use Mary\Traits\Toast;
+use App\Models\Payment;
 use App\Traits\LogFormatter;
 use Livewire\Volt\Component;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 new #[Title('Detail Sales')] class extends Component {
-    use Toast, LogFormatter;
+    use Toast, LogFormatter, WithFileUploads;
+
+    public bool $modalPayment = false;
+    public bool $bankInput = false;
 
     public array $productSelected = [];
+    public array $paymentSelected = [];
     public Sales $sales;
     public bool $modal = false;
     public ?string $note = null;
 
+    //varPayment
+    public string $amount = '';
+    public $method = null;
+    public string $date = '';
+    public $bank = null;
+    public ?UploadedFile $image = null;
+
+    public Collection $methods;
+    public Collection $banks;
+
+    public string $tabSelected = 'product-tab';
+
     public function mount(Sales $sales): void
     {
+        $this->methods = collect([
+            ['id' => 'cash', 'name' => 'cash'],
+            ['id' => 'transfer', 'name' => 'transfer'],
+        ]);
+        $this->banks = collect([
+            ['id' => 'BCA', 'name' => 'BCA'],
+            ['id' => 'BNI', 'name' => 'BNI'],
+            ['id' => 'BRI', 'name' => 'BRI'],
+            ['id' => 'MANDIRI', 'name' => 'MANDIRI'],
+            ['id' => 'OTHER', 'name' => 'OTHER'],
+        ]);
+
+
         $this->sales = $sales;
+        // dd($sales->payment->remaining);
+        $this->amount = $sales->payment ? $sales->payment->remaining : $sales->total_price;
+        $this->searchBank();
+        $this->searchMethod();
 
         $this->productSelected = $sales->details->map(function ($detail) {
             return [
@@ -30,6 +67,55 @@ new #[Title('Detail Sales')] class extends Component {
                 'subtotal' => $detail->subtotal,
             ];
         })->toArray();
+
+        $this->funcPaymentSelected();
+    }
+
+    public function funcPaymentSelected(): void
+    {
+        $this->paymentSelected = $this->sales->payment ? $this->sales->payment?->details?->map(function ($payment) {
+            return [
+                'id' => $payment->id,
+                'name' => $payment->method,
+                'amount' => $payment->amount,
+                'bank' => $payment->bank,
+                'date' => $payment->date,
+                'image' => $payment->image,
+            ];
+        })->toArray() : [];
+    }
+
+    public function searchMethod(string $value = '')
+    {
+        $selectedOption = $this->methods->where('id', $value)->first();
+
+        $this->method = $this->methods
+            ->where('id', 'like', "%{$value}%")
+            ->values()
+            ->when($selectedOption, function ($collection) use ($selectedOption) {
+                return $collection->push($selectedOption);
+            })
+            ->unique('id')
+            ->toArray();
+    }
+
+    public function searchBank(string $value = '')
+    {
+        $selectedOption = $this->banks->where('id', $value)->first();
+
+        $this->bank = $this->banks
+            ->where('id', 'like', "%{$value}%")
+            ->values()
+            ->when($selectedOption, function ($collection) use ($selectedOption) {
+                return $collection->push($selectedOption);
+            })
+            ->unique('id')
+            ->toArray();
+    }
+
+    public function selectMethod($method): void
+    {
+        $this->bankInput = $method == 'transfer' ? true : false;
     }
 
     public function back(): void
@@ -39,6 +125,7 @@ new #[Title('Detail Sales')] class extends Component {
 
     public function action(string $action = ''): void
     {
+
         try {
             DB::beginTransaction();
 
@@ -47,6 +134,7 @@ new #[Title('Detail Sales')] class extends Component {
                 foreach ($this->sales->details as $prod) {
 
                     $product = $prod->product;
+
                     if ($product) {
                         // Cek apakah stok mencukupi
                         if ($product->stock < $prod->quantity) {
@@ -58,6 +146,11 @@ new #[Title('Detail Sales')] class extends Component {
 
                         // Kurangi stok produk
                         $product->decrement('stock', $prod->quantity);
+                    } else {
+                        DB::rollBack();
+                        $this->logInfo('debug', 'Product not found.', null);
+                        $this->error('Product not found.', position: 'toast-bottom');
+                        return;
                     }
                 }
             }
@@ -79,6 +172,68 @@ new #[Title('Detail Sales')] class extends Component {
             $this->logError('debug', 'Failed to update sales.', $th);
         }
     }
+
+    public function pay(): void
+    {
+        $rules = [
+            'amount' => 'required|numeric',
+            'method' => 'required',
+            'date' => 'required|date',
+        ];
+
+        if ($this->method == 'transfer') {
+            $rules['bank'] = 'required';
+            $rules['image'] = 'required|image|max:2048';
+        }
+
+        $this->validate($rules);
+
+        DB::beginTransaction();
+        try {
+            $payment = $this->sales->payment ?? new Payment();
+            $payment->sales_id = $this->sales->id;
+            $payment->customer_id = $this->sales->customer_id;
+            $payment->save();
+
+            $detail = $payment->details()->create([
+                'amount' => $this->amount,
+                'method' => $this->method,
+                'date' => $this->date,
+            ]);
+
+            if($this->method == 'transfer') {
+                $detail->update([
+                    'bank' => $this->bank,
+                    'image' => $this->image ? $this->image->store(path: 'images/sales', options: 'public') : null,
+                ]);
+            }
+
+            if ($payment->details->sum('amount') == $this->sales->total_price) {
+                $payment->update([
+                    'status' => 1,
+                ]);
+            }
+
+            DB::commit();
+            $this->paymentSelected = $this->sales->payment ? $this->sales->payment->details->map(function ($payment) {
+                return [
+                    'id' => $payment->id,
+                    'name' => $payment->method,
+                    'amount' => $payment->amount,
+                    'bank' => $payment->bank,
+                    'date' => $payment->date,
+                    'image' => $payment->image,
+                ];
+            })->toArray() : [];
+            $this->success('Payment saved successfully.', position: 'toast-bottom');
+            $this->reset('amount', 'method', 'bank', 'image', 'date', 'modalPayment', 'bankInput');
+        } catch (\Exeption $th) {
+            DB::rollBack();
+            $this->error('Failed to save payment.', position: 'toast-bottom');
+            $this->logError('debug', 'Failed to save payment.', $th);
+        }
+    }
+
 }; ?>
 
 @script
@@ -124,60 +279,130 @@ new #[Title('Detail Sales')] class extends Component {
                 <p class="font-bold">Status</p>
                 <x-status :status="$this->sales->status" />
 
-                <p class="font-bold">Note</p>
-                <p>{{ $this->sales->note ?? '-' }}</p>
+                @if($sales->status == 'rejected')
+                    <p class="font-bold">Note</p>
+                    <p>{{ $this->sales->note ?? '-' }}</p>
+                @else
+                    <p class="font-bold">Payment Status</p>
+                    @if($this->sales?->payment?->status)
+                        <x-badge value="Paid" class="badge-success text-sm text-white" />
+                    @else
+                        <x-badge value="Pending" class="badge-soft text-sm text-white" />
+                    @endif
+                @endif
             </div>
         </x-card>
     </div>
     <div class="mt-4">
-        <x-card title="Data Product">
-            <x-table :headers="[
-                [
-                    'key' => 'name',
-                    'label' => 'Product',
-                ],
-                [
-                    'key' => 'price',
-                    'label' => 'Price',
-                ],
-                [
-                    'key' => 'qty',
-                    'label' => 'Qty',
-                    'class' => 'w-12',
-                ],
-                [
-                    'key' => 'unit',
-                    'label' => 'Unit',
-                ],
-                [
-                    'key' => 'subtotal',
-                    'label' => 'Subtotal',
-                ],
-            ]" :rows="$productSelected" show-empty-text>
+        <x-tabs
+            wire:model="tabSelected"
+            active-class="bg-primary rounded !text-white"
+            label-class="font-semibold"
+            label-div-class="bg-primary/5 rounded w-fit p-2"
+        >
+            <x-tab name="product-tab" label="Data Product">
+                <x-card title="Data Product">
+                    <x-table :headers="[
+                        [
+                            'key' => 'name',
+                            'label' => 'Product',
+                        ],
+                        [
+                            'key' => 'price',
+                            'label' => 'Price',
+                        ],
+                        [
+                            'key' => 'qty',
+                            'label' => 'Qty',
+                            'class' => 'w-12',
+                        ],
+                        [
+                            'key' => 'unit',
+                            'label' => 'Unit',
+                        ],
+                        [
+                            'key' => 'subtotal',
+                            'label' => 'Subtotal',
+                        ],
+                    ]" :rows="$productSelected" show-empty-text>
 
-                @scope('cell_price', $data)
-                    <p>Rp {{ number_format($data['price'], 0, ',', '.') }}</p>
-                @endscope
-                @scope('cell_subtotal', $data)
-                    <p>Rp {{ number_format($data['subtotal'], 0, ',', '.') }}</p>
-                @endscope
-                @if (count($productSelected) > 0)
-                    <x-slot:footer class="bg-base-200 text-center">
-                        <tr>
-                            <td colspan="4">Total Price</td>
-                            <td class="text-left">Rp {{ number_format($sales->total_price, 0, ',', '.') }}</td>
-                        </tr>
-                    </x-slot:footer>
-                @endif
-            </x-table>
-            @if ($this->sales->status == 'pending')
-            <x-slot:actions>
-                <x-button label="Reject" class="btn-error text-white" @click="$js.rejected" responsive spinner="action('rejected')" />
-                <x-button label="Approve" class="btn-success text-white" @click="$wire.action('approved')" responsive spinner="action('approved')" />
-            </x-slot:actions>
-            @endif
-        </x-card>
+                        @scope('cell_price', $data)
+                            <p>Rp {{ number_format($data['price'], 0, ',', '.') }}</p>
+                        @endscope
+                        @scope('cell_subtotal', $data)
+                            <p>Rp {{ number_format($data['subtotal'], 0, ',', '.') }}</p>
+                        @endscope
+                        @if (count($productSelected) > 0)
+                            <x-slot:footer class="bg-base-200 text-center">
+                                <tr>
+                                    <td colspan="4">Total Price</td>
+                                    <td class="text-left">Rp {{ number_format($sales->total_price, 0, ',', '.') }}</td>
+                                </tr>
+                            </x-slot:footer>
+                        @endif
+                    </x-table>
+
+                    @if ($this->sales->status == 'pending')
+                    <x-slot:actions>
+                        <x-button label="Reject" class="btn-error text-white" @click="$js.rejected" responsive spinner="action('rejected')" />
+                        <x-button label="Approve" class="btn-success text-white" @click="$wire.action('approved')" responsive spinner="action('approved')" />
+                    </x-slot:actions>
+                    @endif
+                </x-card>
+            </x-tab>
+            <x-tab name="payment-tab" label="Data Payment">
+                <x-card>
+                    <x-table :headers="[
+                        [
+                            'key' => 'date',
+                            'label' => 'Date',
+                        ],
+                        [
+                            'key' => 'name',
+                            'label' => 'Method',
+                        ],
+                        [
+                            'key' => 'amount',
+                            'label' => 'Amount',
+                        ],
+                        [
+                            'key' => 'bank',
+                            'label' => 'Bank',
+                        ],
+                        [
+                            'key' => 'image',
+                            'label' => 'Image',
+                        ],
+                    ]" :rows="$paymentSelected" show-empty-text>
+                    @scope('cell_date', $payment)
+                        <p>{{ \Carbon\Carbon::parse($payment['date'])->locale('id')->translatedFormat('d F Y') }}</p>
+                    @endscope
+                    @scope('cell_amount', $payment)
+                        <p>Rp {{ number_format($payment['amount'], 0, ',', '.') }}</p>
+                    @endscope
+                    @scope('cell_image', $payment)
+                        @if($payment['image'] != '-')
+                            <img src="{{ asset('storage/'.$payment['image']) }}" class="h-40 rounded-lg">
+                        @else
+                            <p>-</p>
+                        @endif
+                    @endscope
+                    </x-table>
+                    @if($this->sales->status == 'approved' && (!$this->sales->payment || $this->sales->payment?->remaining != 0))
+                    <x-slot:actions>
+                        <x-button label="Pay" class="btn-success text-white" @click="$wire.modalPayment = true" responsive />
+                    </x-slot:actions>
+                    @endif
+                </x-card>
+            </x-tab>
+            <x-tab name="distribution-tab" label="Data Distribution">
+                <div>Data Distribution</div>
+            </x-tab>
+        </x-tabs>
+
     </div>
+
+
     <x-modal wire:model="modal" title="Reject Note" without-trap-focus>
         <x-form wire:submit="action('rejected')" no-separator>
 
@@ -186,6 +411,66 @@ new #[Title('Detail Sales')] class extends Component {
 
             <x-slot:actions>
                 <x-button label="Submit" type="submit" spinner="action('rejected')" class="btn-primary" />
+            </x-slot:actions>
+        </x-form>
+    </x-modal>
+
+    <x-modal wire:model="modalPayment" title="Payment" without-trap-focus box-class="w-full h-fit max-w-[700px]">
+        <x-form wire:submit="pay" no-separator>
+
+            <x-datepicker label="Date" wire:model="date" icon="o-calendar" />
+
+            <x-input label="Amount" wire:model="amount" type="number" required />
+            {{-- <x-select label="Method" wire:model="method" :options="['cash', 'transfer']" required /> --}}
+
+            <x-choices-offline
+            label="Method"
+            wire:model="method"
+            :options="$methods"
+            placeholder="Search ..."
+            search-function="searchMethod"
+            @change-selection="$wire.selectMethod($event.detail.value)"
+            single
+            clearable
+            searchable
+            >
+            @scope('item', $method)
+                <x-list-item :item="$method"/>
+            @endscope
+
+            {{-- Selection slot--}}
+            @scope('selection', $method)
+                {{ $method['id'] }}
+            @endscope
+            </x-choices-offline>
+
+            <div wire:show="bankInput">
+                <x-choices-offline
+                label="Bank"
+                wire:model="bank"
+                :options="$banks"
+                placeholder="Search ..."
+                search-function="searchBank"
+                single
+                clearable
+                searchable
+                >
+                @scope('item', $bank)
+                    <x-list-item :item="$bank"/>
+                @endscope
+
+                {{-- Selection slot--}}
+                @scope('selection', $bank)
+                    {{ $bank['id'] }}
+                @endscope
+                </x-choices-offline>
+            </div>
+
+            <div wire:show='bankInput'>
+                <x-file wire:model="image" label="Image" hint="Only Image" accept="image/png, image/jpeg, image/jpg" />
+            </div>
+            <x-slot:actions>
+                <x-button label="Submit" type="submit" spinner="pay" class="btn-primary" />
             </x-slot:actions>
         </x-form>
     </x-modal>

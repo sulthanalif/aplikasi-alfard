@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -57,5 +58,10 @@ class Sales extends Model
     public function details(): HasMany
     {
         return $this->hasMany(SalesDetail::class, 'sales_id', 'id');
+    }
+
+    public function payment(): HasOne
+    {
+        return $this->hasOne(Payment::class, 'sales_id', 'id');
     }
 }

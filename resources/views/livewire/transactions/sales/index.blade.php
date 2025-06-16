@@ -29,6 +29,7 @@ new #[Title('Sales')] class extends Component {
         return Sales::query()
             ->withAggregate('customer', 'name')
             ->withAggregate('actionBy', 'name')
+            ->withAggregate('payment', 'status')
             ->where('invoice', 'like', "%{$this->search}%")
             ->orWhere('date', 'like', "%{$this->search}%")
             ->orWhereHas('customer', function($query) {
@@ -49,6 +50,7 @@ new #[Title('Sales')] class extends Component {
             ['key' => 'customer_name', 'label' => 'Customer'],
             ['key' => 'total_price', 'label' => 'Total Price'],
             ['key' => 'status', 'label' => 'Status'],
+            ['key' => 'payment_status', 'label' => 'Payment Status'],
             ['key' => 'action_by_name', 'label' => 'Action by'],
             ['key' => 'created_at', 'label' => 'Created at'],
         ];
@@ -88,6 +90,13 @@ new #[Title('Sales')] class extends Component {
             @endscope
             @scope('cell_status', $data)
                 <x-status :status="$data->status" />
+            @endscope
+            @scope('cell_payment_status', $data)
+                @if($data->payment_status)
+                    <x-badge value="Paid" class="badge-success text-sm text-white" />
+                @else
+                    <x-badge value="Pending" class="badge-soft text-sm text-white" />
+                @endif
             @endscope
             @scope('cell_action_by_name', $data)
                 <p>{{ $data->actionBy ? $data->actionBy->name : '-' }}</p>
