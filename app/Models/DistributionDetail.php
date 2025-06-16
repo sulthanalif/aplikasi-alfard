@@ -12,6 +12,7 @@ class DistributionDetail extends Model
     protected $fillable = [
         'distribution_id',
         'sales_id',
+        'status',
     ];
 
     public function distribution(): BelongsTo

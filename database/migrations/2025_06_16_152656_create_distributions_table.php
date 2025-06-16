@@ -23,6 +23,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('distribution_id')->constrained();
             $table->foreignId('sales_id')->constrained();
+            $table->enum('status', ['pending', 'shipped', 'delivered']);
             $table->timestamps();
         });
     }

@@ -39,8 +39,8 @@ class DatabaseSeeder extends Seeder
             'manage-products',
 
             'payment',
-            'manage-delivery',
-            'approve-delivery',
+            'manage-distribution',
+            'approve-distribution',
         ];
 
         foreach ($permissions as $permission) {
@@ -76,14 +76,14 @@ class DatabaseSeeder extends Seeder
             'approve-sales',
 
             'payment',
-            'manage-delivery',
-            'approve-delivery',
+            'manage-distribution',
+            'approve-distribution',
         ];
 
         $permission_driver = [
             'dashboard',
             'transactions',
-            'manage-delivery',
+            'manage-distribution',
         ];
 
         $roleCustomer = Role::create(['name' => 'customer']);

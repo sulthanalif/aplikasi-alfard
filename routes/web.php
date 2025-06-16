@@ -34,6 +34,8 @@ Route::group(['middleware' => 'auth'], function () {
         Volt::route('/po/{po:invoice}/detail', 'transactions.po.detail')->middleware('can:manage-po')->name('po.detail');
     });
 
+    Volt::route('/distributions', 'distributions.index')->middleware('can:manage-distribution')->name('distributions');
+
     Route::prefix('options')->group(function () {
         Volt::route('/roles', 'settings.roles.index')->middleware('can:manage-roles')->name('roles');
         Volt::route('/permissions', 'settings.permissions.index')->middleware('can:manage-permissions')->name('permissions');
