@@ -39,10 +39,29 @@ new #[Title('Detail Sales')] class extends Component {
 
     public function action(string $action = ''): void
     {
-        if ($action == 'approved') $this->note = null;
-
         try {
             DB::beginTransaction();
+
+            if ($action == 'approved') {
+                $this->note = null;
+                foreach ($this->sales->details as $prod) {
+
+                    $product = $prod->product;
+                    if ($product) {
+                        // Cek apakah stok mencukupi
+                        if ($product->stock < $prod->quantity) {
+                            DB::rollBack();
+                            $this->logInfo('debug', 'Stok produk '.$product->name.' tidak mencukupi (tersisa: '.$product->stock.', dibutuhkan: '.$prod->quantity.')', null);
+                            $this->error("Stok produk {$product->name} tidak mencukupi (tersisa: {$product->stock}, dibutuhkan: {$prod->quantity}). Penjualan tidak dapat disetujui.", position: 'toast-bottom');
+                            return;
+                        }
+
+                        // Kurangi stok produk
+                        $product->decrement('stock', $prod->quantity);
+                    }
+                }
+            }
+
 
             $this->sales->update([
                 'status' => $action,
