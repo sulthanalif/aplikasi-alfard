@@ -14,6 +14,11 @@ new #[Title('Distributions')] class extends Component {
     public array $sortBy = ['column' => 'date', 'direction' => 'desc'];
     public int $perPage = 10;
 
+    public function create(): void
+    {
+        $this->redirect(route('distributions.form'), navigate: true);
+    }
+
     public function datas(): LengthAwarePaginator
     {
        return Distribution::query()

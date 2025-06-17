@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Volt::route('/distributions', 'distributions.index')->middleware('can:manage-distribution')->name('distributions');
+    Volt::route('/distributions/form', 'distributions.form')->middleware('can:manage-distribution')->name('distributions.form');
 
     Route::prefix('options')->group(function () {
         Volt::route('/roles', 'settings.roles.index')->middleware('can:manage-roles')->name('roles');
