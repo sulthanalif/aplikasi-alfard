@@ -67,6 +67,34 @@ return [
         'title' => 'Distributions',
         'icon' => 'fas.truck-pickup',
         'link' => 'distributions',
+        'can'  => 'manage-distribution',
+    ],
+    [
+        'type' => 'sub',
+        'title' => 'Reports',
+        'icon' => 'fas.file-lines',
+        // 'link' => 'reports',
+        // 'can'  => 'reports',
+        'submenu' => [
+            [
+                'title' => 'Sales',
+                'icon' => 'fas.file-lines',
+                'link' => 'sales-report',
+                // 'can'  => 'sales-report',
+            ],
+            [
+                'title' => 'Purchase Order',
+                'icon' => 'fas.file-lines',
+                'link' => 'po-report',
+                // 'can'  => 'po-report',
+            ],
+            [
+                'title' => 'Distribution',
+                'icon' => 'fas.file-lines',
+                'link' => 'distribution-report',
+                // 'can'  => 'distribution-report',
+            ],
+        ]
     ],
     [
         'type' => 'sub',

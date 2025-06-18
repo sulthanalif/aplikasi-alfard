@@ -26,18 +26,26 @@ new #[Title('Sales')] class extends Component {
 
     public function datas(): LengthAwarePaginator
     {
-        return Sales::query()
+        $role = auth()->user()->roles->first()->name;
+        $query = Sales::query()
             ->withAggregate('customer', 'name')
             ->withAggregate('actionBy', 'name')
             ->withAggregate('payment', 'status')
-            ->withAggregate('distribution', 'status')
-            ->where('invoice', 'like', "%{$this->search}%")
-            ->orWhere('date', 'like', "%{$this->search}%")
-            ->orWhereHas('customer', function($query) {
-                $query->where('name', 'like', "%{$this->search}%");
-            })
-            ->orWhereHas('actionBy', function($query) {
-                $query->where('name', 'like', "%{$this->search}%");
+            ->withAggregate('distribution', 'status');
+
+        if ($role === 'customer') {
+            $query->where('customer_id', auth()->user()->customer_id);
+        }
+
+        return $query->where(function($q) {
+                $q->where('invoice', 'like', "%{$this->search}%")
+                    ->orWhere('date', 'like', "%{$this->search}%")
+                    ->orWhereHas('customer', function($q) {
+                        $q->where('name', 'like', "%{$this->search}%");
+                    })
+                    ->orWhereHas('actionBy', function($q) {
+                        $q->where('name', 'like', "%{$this->search}%");
+                    });
             })
             ->orderBy($this->sortBy['column'], $this->sortBy['direction'])
             ->paginate($this->perPage);

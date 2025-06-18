@@ -399,25 +399,28 @@ new #[Title('Detail Sales')] class extends Component {
                 </x-card>
             </x-tab>
             <x-tab name="distribution-tab" label="Distribution">
-                <x-card>
-                    <div class="grid grid-cols-2 gap-2 mb-5">
-                        <p class="font-bold">Distribution Number</p>
-                        <p>{{ $this->sales->distribution?->distribution?->number ?? '-' }}</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <x-card>
+                        <div class="grid grid-cols-2 gap-2">
+                            <p class="font-bold">Distribution Number</p>
+                            <p>{{ $this->sales->distribution?->distribution?->number ?? '-' }}</p>
 
-                        <p class="font-bold">Driver Name</p>
-                        <p>{{ $this->sales->distribution?->distribution?->driver?->name ?? '-' }}</p>
-                    </div>
-
-                    <div class="ms-5">
-                        <div>
-                            <x-timeline-item title="Order placed"  first icon="o-map-pin" />
-
-                            <x-timeline-item title="Shipped" pending="{{ $sales->distribution?->status == 'shipped' || 'delivered' ? '' : true }}" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
-                            
-                            <x-timeline-item title="Delivered" pending="{{ $sales->distribution?->status == 'delivered' ? '' : true }}" subtitle="{{ $sales->distribution?->delivered_at ? 'Delivered at ' . \Carbon\Carbon::parse($sales->distribution?->delivered_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Delivered' }}" last icon="o-gift" />
+                            <p class="font-bold">Driver Name</p>
+                            <p>{{ $this->sales->distribution?->distribution?->driver?->name ?? '-' }}</p>
                         </div>
-                    </div>
-                </x-card>
+                    </x-card>
+                    <x-card>
+                        <div class="ms-5">
+                            <div>
+                                <x-timeline-item title="Order placed"  first icon="o-map-pin" />
+
+                                <x-timeline-item title="Shipped" pending="{{ $sales->distribution?->status == 'shipped' || 'delivered' ? '' : true }}" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
+                                
+                                <x-timeline-item title="Delivered" pending="{{ $sales->distribution?->status == 'delivered' ? '' : true }}" subtitle="{{ $sales->distribution?->delivered_at ? 'Delivered at ' . \Carbon\Carbon::parse($sales->distribution?->delivered_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Delivered' }}" last icon="o-gift" />
+                            </div>
+                        </div>
+                    </x-card>
+                </div>
             </x-tab>
         </x-tabs>
 
