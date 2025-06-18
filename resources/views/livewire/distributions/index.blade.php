@@ -60,6 +60,10 @@ new #[Title('Distributions')] class extends Component {
                 'key' => 'driver_name',
                 'label' => 'Driver',
             ],
+            [
+                'key' => 'status_text',
+                'label' => 'Status',
+            ],
         ];
     }
 
@@ -91,6 +95,9 @@ new #[Title('Distributions')] class extends Component {
             with-pagination show-empty-text @row-click="$wire.detail($event.detail)">
             @scope('cell_date', $data)
                 <p>{{ \Carbon\Carbon::parse($data->date)->locale('id')->translatedFormat('d F Y') }}</p>
+            @endscope
+            @scope('cell_status_text', $data)
+                <x-status :status="$data->status_text" />
             @endscope
         </x-table>
     </x-card>

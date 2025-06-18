@@ -17,6 +17,10 @@ class Distribution extends Model
         'status',
     ];
 
+    protected $appends = [
+        'status_text',
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -33,6 +37,21 @@ class Distribution extends Model
         $randomString = substr(str_shuffle(str_repeat($string, $int)), 0, $int);
 
         return "DIS{$date}{$randomString}";
+    }
+
+    public function getStatusTextAttribute()
+    {
+        if (!$this->status) {
+            return 'pending';
+        }
+    
+        if ($this->status) {
+            // Check if all details are delivered
+            $allDelivered = $this->details()->count() > 0 && 
+                            $this->details()->where('status', '!=', 'delivered')->count() === 0;
+        
+            return $allDelivered ? 'success' : 'process';
+        }
     }
 
     public function driver(): BelongsTo

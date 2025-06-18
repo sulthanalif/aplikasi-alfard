@@ -39,6 +39,18 @@ class Status extends Component
                     'class' => 'badge-success'
                 ];
                 break;
+            case 'success':
+                $this->status = [
+                    'text' => 'Success',
+                    'class' => 'badge-success'
+                ];
+                break;
+            case 'process':
+                $this->status = [
+                    'text' => 'Process',
+                    'class' => 'badge-warning'
+                ];
+                break;
             default:
                 $this->status = [
                     'text' => 'Pending',

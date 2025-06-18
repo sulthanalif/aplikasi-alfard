@@ -132,6 +132,9 @@ new #[Title('Detail Distribution')] class extends Component {
 
                 <p class="font-bold">Driver</p>
                 <p>{{ $this->distribution->driver->name ?? '-' }}</p>
+
+                <p class="font-bold">Status</p>
+                <x-status :status="$this->distribution->status_text" />
             </div>
             <x-slot:actions>
                 @if (!$this->distribution->status)
