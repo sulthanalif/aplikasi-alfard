@@ -13,6 +13,10 @@ class DistributionDetail extends Model
         'distribution_id',
         'sales_id',
         'status',
+        'note',
+        'shipment_at',
+        'delivered_at',
+        'image',
     ];
 
     public function distribution(): BelongsTo

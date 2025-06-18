@@ -43,8 +43,6 @@ class Sales extends Model
         return "INV{$date}{$randomString}";
     }
 
-
-
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id', 'customer_id');
@@ -63,5 +61,10 @@ class Sales extends Model
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class, 'sales_id', 'id');
+    }
+
+    public function distribution(): HasOne
+    {
+        return $this->hasOne(DistributionDetail::class, 'sales_id', 'id');
     }
 }

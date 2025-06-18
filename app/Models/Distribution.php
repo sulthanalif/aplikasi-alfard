@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Distribution extends Model
@@ -13,6 +14,7 @@ class Distribution extends Model
         'number',
         'date',
         'user_id',
+        'status',
     ];
 
     protected static function boot()
@@ -36,5 +38,10 @@ class Distribution extends Model
     public function driver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(DistributionDetail::class, 'distribution_id', 'id');
     }
 }

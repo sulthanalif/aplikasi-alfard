@@ -19,9 +19,19 @@ new #[Title('Distributions')] class extends Component {
         $this->redirect(route('distributions.form'), navigate: true);
     }
 
+    public function detail(Distribution $distribution): void
+    {
+        $this->redirect(route('distributions.detail', $distribution), navigate: true);
+    }
+
     public function datas(): LengthAwarePaginator
     {
+        $user = auth()->user();
+
        return Distribution::query()
+            ->when($user->hasRole('driver'), function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->withAggregate('driver', 'name')
             ->where('number', 'like', "%{$this->search}%")
             ->orWhere('date', 'like', "%{$this->search}%")
@@ -47,7 +57,7 @@ new #[Title('Distributions')] class extends Component {
                 'label' => 'Number',
             ],
             [
-                'key' => 'user_name',
+                'key' => 'driver_name',
                 'label' => 'Driver',
             ],
         ];

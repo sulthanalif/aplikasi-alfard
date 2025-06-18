@@ -290,6 +290,9 @@ new #[Title('Detail Sales')] class extends Component {
                         <x-badge value="Pending" class="badge-soft text-sm text-white" />
                     @endif
                 @endif
+
+                <p class="font-bold">Delivery Status</p>
+                <x-status :status="$this->sales->distribution?->status ?? 'pending'" />
             </div>
         </x-card>
     </div>
@@ -300,7 +303,7 @@ new #[Title('Detail Sales')] class extends Component {
             label-class="font-semibold"
             label-div-class="bg-primary/5 rounded w-fit p-2"
         >
-            <x-tab name="product-tab" label="Data Product">
+            <x-tab name="product-tab" label="Product">
                 <x-card title="Data Product">
                     <x-table :headers="[
                         [
@@ -350,7 +353,7 @@ new #[Title('Detail Sales')] class extends Component {
                     @endif
                 </x-card>
             </x-tab>
-            <x-tab name="payment-tab" label="Data Payment">
+            <x-tab name="payment-tab" label="Payment">
                 <x-card>
                     <x-table :headers="[
                         [
@@ -395,8 +398,26 @@ new #[Title('Detail Sales')] class extends Component {
                     @endif
                 </x-card>
             </x-tab>
-            <x-tab name="distribution-tab" label="Data Distribution">
-                <div>Data Distribution</div>
+            <x-tab name="distribution-tab" label="Distribution">
+                <x-card>
+                    <div class="grid grid-cols-2 gap-2 mb-5">
+                        <p class="font-bold">Distribution Number</p>
+                        <p>{{ $this->sales->distribution?->distribution?->number ?? '-' }}</p>
+
+                        <p class="font-bold">Driver Name</p>
+                        <p>{{ $this->sales->distribution?->distribution?->driver?->name ?? '-' }}</p>
+                    </div>
+
+                    <div class="ms-5">
+                        <div>
+                            <x-timeline-item title="Order placed"  first icon="o-map-pin" />
+
+                            <x-timeline-item title="Shipped" pending="{{ $sales->distribution?->status == 'shipped' || 'delivered' ? '' : true }}" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
+                            
+                            <x-timeline-item title="Delivered" pending="{{ $sales->distribution?->status == 'delivered' ? '' : true }}" subtitle="{{ $sales->distribution?->delivered_at ? 'Delivered at ' . \Carbon\Carbon::parse($sales->distribution?->delivered_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Delivered' }}" last icon="o-gift" />
+                        </div>
+                    </div>
+                </x-card>
             </x-tab>
         </x-tabs>
 

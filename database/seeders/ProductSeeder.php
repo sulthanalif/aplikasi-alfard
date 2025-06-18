@@ -23,6 +23,17 @@ class ProductSeeder extends Seeder
                 'stock' => 100,
                 'image' => null,
                 'status' => 1,
+            ],
+            [
+                'code' => 'PRD002',
+                'category_id' => 1,
+                'unit_id' => 2,
+                'name' => 'Air Mineral Masoem Cup',
+                'description' => 'Air Mineral Masoem Cup',
+                'price' => 2000,
+                'stock' => 100,
+                'image' => null,
+                'status' => 1,
             ]
         ];
 

@@ -101,6 +101,12 @@ class DatabaseSeeder extends Seeder
             'customer_id' => 'CUST001',
             'address' => 'Jl. Jend. Sudirman No. 1',
         ])->assignRole($roleCustomer);
+        User::factory()->create([
+            'name' => 'Customer2',
+            'email' => 'customer2@mail.com',
+            'customer_id' => 'CUST002',
+            'address' => 'Jl. Jend. Sudirman No. 2',
+        ])->assignRole($roleCustomer);
 
         User::factory()->create([
             'name' => 'Admin',
