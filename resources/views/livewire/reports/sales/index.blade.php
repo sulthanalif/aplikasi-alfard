@@ -21,12 +21,35 @@ new class extends Component {
 
     public function datas(): LengthAwarePaginator
     {
-        return Sales::whereBetween('created_at', [$this->start_date, $this->end_date])
+        return Sales::->withAggregate('customer', 'name')->whereBetween('created_at', [$this->start_date, $this->end_date])
             ->when($this->search, function ($query) {
-                $query->where('invoice', 'like', "%{$this->search}%");
+                $query->where('invoice', 'like', "%{$this->search}%")
+                    ->orWhereHas('customer', function ($query) {
+                        $query->where('name', 'like', "%{$this->search}%");
+                    });
             })
             ->orderBy($this->sortBy['column'], $this->sortBy['direction'])
             ->paginate($this->perPage);
+    }
+
+    public function headers(): array
+    {
+        return [
+            ['key' => 'date', 'label' => 'Date'],
+            ['key' => 'invoice', 'label' => 'Invoice'],
+            ['key' => 'customer_name', 'label' => 'Customer'],
+            ['key' => 'total_price', 'label' => 'Total Price'],
+            ['key' => 'status', 'label' => 'Status'],
+            ['key' => 'payment_status', 'label' => 'Payment Status'],
+        ];
+    }
+
+    public function with(): array
+    {
+        return [
+            'datas' => $this->datas(),
+            'headers' => $this->headers(),
+        ];
     }
 }; ?>
 
