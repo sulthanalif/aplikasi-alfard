@@ -1,10 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Aplikasi Penjualan
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+Aplikasi Penjualan adalah aplikasi web berbasis Laravel yang dirancang untuk mengelola penjualan, pembelian, stok, dan keuangan. Aplikasi ini menyediakan fitur-fitur penting untuk membantu bisnis kecil dan menengah dalam mengelola operasional mereka.
+
+## Fitur Utama
+
+-   **Manajemen Produk:** Kelola informasi produk, kategori, dan unit.
+-   **Manajemen Penjualan:** Catat dan kelola transaksi penjualan, faktur, dan detail penjualan.
+-   **Manajemen Pembelian:** Kelola pesanan pembelian dan detail pembelian.
+-   **Manajemen Stok:** Pantau stok produk dan kelola inventaris.
+-   **Manajemen Keuangan:** Kelola pembayaran dan detail pembayaran.
+-   **Laporan:** Hasilkan laporan penjualan, pembelian, dan keuangan.
+
+## Teknologi yang Digunakan
+
+-   [Laravel](https://laravel.com/) - Framework PHP
+-   [Livewire](https://livewire.laravel.com/) - Full-stack framework untuk Laravel
+-   [Mary UI](https://mary-ui.com/) - Komponen UI untuk Livewire
+-   [Maatwebsite Excel](https://docs.laravel-excel.com/) - Library untuk impor dan ekspor Excel
+-   [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission/v6/introduction) - Package untuk manajemen permission dan roles
+
+## Instalasi
+
+1.  Clone repositori:
+
+    ```bash
+git clone https://github.com/username/aplikasi-alfard.git aplikasi-penjualan
+    ```
+
+2.  Pindah ke direktori proyek:
+
+    ```bash
+cd aplikasi-penjualan
+    ```
+
+3.  Instal dependensi Composer:
+
+    ```bash
+composer install
+    ```
+
+4.  Salin file `.env.example` ke `.env` dan konfigurasi database:
+
+    ```bash
+cp .env.example .env
+    ```
+
+    Edit file `.env` dan masukkan detail database Anda.
+
+5.  Generate key aplikasi:
+
+    ```bash
+php artisan key:generate
+    ```
+
+6.  Migrasi database:
+
+    ```bash
+php artisan migrate
+    ```
+
+7.  Seed database (opsional):
+
+    ```bash
+php artisan db:seed
+    ```
+
+## Penggunaan
+
+1.  Jalankan server pengembangan:
+
+    ```bash
+php artisan serve
+    ```
+
+2.  Buka aplikasi di browser Anda: `http://localhost:8000`
+
+## Lisensi
+
+Aplikasi Alfard dilisensikan di bawah lisensi [MIT](LICENSE.md)."></a>
 </p>
 
 ## About Laravel
