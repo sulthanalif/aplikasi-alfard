@@ -11,7 +11,6 @@ class PurchaseOrderDetail extends Model
         'purchase_order_id',
         'product_id',
         'quantity',
-        'price',
         'subtotal'
     ];
 

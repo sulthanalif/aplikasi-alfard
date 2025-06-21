@@ -32,6 +32,7 @@ new #[Title('Products')] class extends Component {
     public ?int $category_id = null;
     public ?int $unit_id = null;
     public int $price = 0;
+    public int $purchase_price = 0;
     public int $stock = 0;
     public bool $status = true;
 
@@ -79,6 +80,7 @@ new #[Title('Products')] class extends Component {
                     'category' => $data->category->name,
                     'unit' => $data->unit->name,
                     'price' => $data->price,
+                    'purchase_price' => $data->purchase_price,
                     'stock' => $data->stock,
                     'status' => $data->status ? 'Active' : 'Inactive',
                     'created_at' => $data->created_at,
@@ -86,7 +88,7 @@ new #[Title('Products')] class extends Component {
             });
 
             $headers = [
-                'CODE', 'NAME', 'CATEGORY', 'UNIT', 'PRICE', 'STOCK', 'STATUS', 'CREATED_AT'
+                'CODE', 'NAME', 'CATEGORY', 'UNIT', 'PRICE', 'PURCHASE PRICE', 'STOCK', 'STATUS', 'CREATED_AT'
             ];
 
             $this->success('Data exported successfully!', position: 'toast-bottom');
@@ -109,6 +111,7 @@ new #[Title('Products')] class extends Component {
                 'category_id' => ['required'],
                 'unit_id' => ['required'],
                 'price' => ['required', 'numeric'],
+                'purchase_price' => ['required', 'numeric'],
                 'stock' => ['required', 'numeric'],
                 'status' => ['required', 'boolean'],
             ]
@@ -141,6 +144,7 @@ new #[Title('Products')] class extends Component {
             ['key' => 'name', 'label' => 'Name'],
             ['key' => 'category_name', 'label' => 'Category'],
             ['key' => 'price', 'label' => 'Price'],
+            ['key' => 'purchase_price', 'label' => 'Purchase Price'],
             ['key' => 'stock', 'label' => 'Stock'],
             ['key' => 'unit_name', 'label' => 'Unit'],
             ['key' => 'status', 'label' => 'Status'],
@@ -167,7 +171,9 @@ new #[Title('Products')] class extends Component {
             $wire.name = '';
             $wire.description = '';
             $wire.category_id = null;
+            $wire.unit_id = null;
             $wire.price = 0;
+            $wire.purchase_price = 0;
             $wire.stock = 0;
             $wire.status = true;
             $wire.$refresh();
@@ -179,7 +185,9 @@ new #[Title('Products')] class extends Component {
             $wire.name = product.name;
             $wire.description = product.description;
             $wire.category_id = product.category_id;
+            $wire.unit_id = product.unit_id;
             $wire.price = product.price;
+            $wire.purchase_price = product.purchase_price;
             $wire.stock = product.stock;
             $wire.status = product.status;
             $wire.$refresh();
@@ -206,6 +214,9 @@ new #[Title('Products')] class extends Component {
             with-pagination show-empty-text @row-click="$js.edit($event.detail)">
             @scope('cell_price', $data)
                 <p>Rp {{ number_format($data->price, 0, ',', '.') }}</p>
+            @endscope
+            @scope('cell_purchase_price', $data)
+                <p>Rp {{ number_format($data->purchase_price, 0, ',', '.') }}</p>
             @endscope
             @scope('cell_status', $data)
                 <p>{{ $data->status ? 'Active' : 'Inactive' }}</p>

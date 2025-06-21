@@ -430,7 +430,7 @@ new #[Title('Detail Sales')] class extends Component {
                             <div>
                                 <x-timeline-item title="Order placed"  first icon="o-map-pin" />
 
-                                @if($sales->distribution?->status != 'pending')
+                                @if($sales->distribution && $sales->distribution?->status != 'pending')
                                     <x-timeline-item title="Shipped" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
                                 @else
                                     <x-timeline-item title="Shipped" pending subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />

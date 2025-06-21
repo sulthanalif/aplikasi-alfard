@@ -34,7 +34,7 @@ new #[Title('Detail Distribution')] class extends Component {
 
     public function back(): void
     {
-        $this->redirect(route('distribution'), navigate: true);
+        $this->redirect(route('distributions'), navigate: true);
     }
 
     public function detail(DistributionDetail $distribution): void

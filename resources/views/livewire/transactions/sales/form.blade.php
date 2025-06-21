@@ -47,7 +47,10 @@ new #[Title('Form Sales')] class extends Component {
 
         $this->customers = User::role('customer')
             ->where('status', true)
-            ->where('customer_id', 'like', "%{$value}%")
+            ->where(function ($query) use ($value) {
+                $query->where('customer_id', 'like', "%{$value}%")
+                    ->orWhere('name', 'like', "%{$value}%");
+            })
             ->orderBy('name')
             ->get()
             ->merge($selectedOption);
@@ -57,11 +60,13 @@ new #[Title('Form Sales')] class extends Component {
     {
         $selectedOption = Product::where('id', $this->product_id)->get();
 
-        $this->products = Product::where('status', true)
-            ->where('stock', '>', 0)
-            ->where(function ($query) use ($value) {
-                $query->where('name', 'like', "%{$value}%")
-                    ->orWhere('code', 'like', "%{$value}%");
+        $this->products = Product::query()
+            ->when($value, function ($query, $value) {
+                $query->where('code', 'like', "%{$value}%")
+                    ->orWhere('name', 'like', "%{$value}%")
+                    ->orWhereHas('category', function ($query) use ($value) {
+                        $query->where('name', 'like', "%{$value}%");
+                    });
             })
             ->orderBy('code')
             ->get()
@@ -188,15 +193,15 @@ new #[Title('Form Sales')] class extends Component {
                 </div>
                 <div>
                     @role('customer')
-                        <x-choices-offline
+                        <x-choices
                         label="Customer"
                         wire:model="customer_id"
                         :options="$customers"
                         placeholder="Search ..."
                         search-function="searchCustomer"
                         @change-selection="$wire.customerSelected($event.detail.value)"
-                        debounce="300ms"
-                        min-chars="5"
+                        {{-- debounce="300ms" --}}
+                        {{-- min-chars="5" --}}
                         disabled
                         single
                         clearable
@@ -211,17 +216,17 @@ new #[Title('Form Sales')] class extends Component {
                         @scope('selection', $user)
                             {{ $user->customer_id }} ({{ $user->name }})
                         @endscope
-                        </x-choices-offline>
+                        </x-choices>
                     @else
-                        <x-choices-offline
+                        <x-choices
                         label="Customer"
                         wire:model="customer_id"
                         :options="$customers"
                         placeholder="Search ..."
                         search-function="searchCustomer"
                         @change-selection="$wire.customerSelected($event.detail.value)"
-                        debounce="300ms"
-                        min-chars="5"
+                        {{-- debounce="300ms" --}}
+                        {{-- min-chars="5" --}}
 
                         single
                         clearable
@@ -236,7 +241,7 @@ new #[Title('Form Sales')] class extends Component {
                         @scope('selection', $user)
                             {{ $user->customer_id }} ({{ $user->name }})
                         @endscope
-                        </x-choices-offline>
+                        </x-choices>
                     @endrole
                 </div>
                 <div>
@@ -245,7 +250,7 @@ new #[Title('Form Sales')] class extends Component {
             </x-card>
             <x-card shadow class="w-full md:w-2/3">
                 <div>
-                    <x-choices-offline
+                    <x-choices
                     label="Product"
                     wire:model="product_id"
                     :options="$products"
@@ -255,16 +260,17 @@ new #[Title('Form Sales')] class extends Component {
                     single
                     clearable
                     searchable
+                    values-as-string
                     >
                     @scope('item', $product)
                         <x-list-item :item="$product" sub-value="code" />
                     @endscope
 
-                    {{-- Selection slot--}}
+
                     @scope('selection', $product)
                         {{ $product->name }} ({{ $product->code }})
                     @endscope
-                    </x-choices-offline>
+                    </x-choices>
                 </div>
                 <div>
                     <x-table :headers="[

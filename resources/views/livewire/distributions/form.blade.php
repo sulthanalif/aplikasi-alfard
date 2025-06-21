@@ -32,6 +32,11 @@ new #[Title('Form Distribution')] class extends Component {
         $this->searchDrivers();
     }
 
+    public function back(): void
+    {
+        $this->redirect(route('distributions'), navigate: true);
+    }
+
     public function searchSales(string $value = '')
     {
         $selectedOption = Sales::where('id', $this->sales_id)->get();
@@ -92,10 +97,10 @@ new #[Title('Form Distribution')] class extends Component {
             })->values();
 
         $existingProducts = collect($this->products);
-        
+
         $mergedProducts = $newProducts->map(function ($newProduct) use ($existingProducts) {
             $existingProduct = $existingProducts->firstWhere('product_id', $newProduct['product_id']);
-            
+
             if ($existingProduct) {
                 return [
                     'sales_id' => $newProduct['sales_id'],
@@ -104,7 +109,7 @@ new #[Title('Form Distribution')] class extends Component {
                     'quantity' => $newProduct['quantity'] + $existingProduct['quantity'],
                 ];
             }
-            
+
             return $newProduct;
         });
 
@@ -133,7 +138,7 @@ new #[Title('Form Distribution')] class extends Component {
         $this->products = collect($this->products)
             ->map(function ($product) use ($salesProducts) {
                 $salesProduct = $salesProducts->firstWhere('product_id', $product['product_id']);
-                
+
                 if ($salesProduct) {
                     $newQuantity = $product['quantity'] - $salesProduct['quantity'];
                     if ($newQuantity > 0) {
@@ -157,9 +162,9 @@ new #[Title('Form Distribution')] class extends Component {
                 'selectedSales' => 'required|array',
                 'selectedSales.*.sales_id' => 'required|integer',
             ];
-    
+
             $this->validate($rules);
-    
+
             DB::beginTransaction();
             $distribution = Distribution::create([
                 'date' => $this->date,
@@ -187,7 +192,7 @@ new #[Title('Form Distribution')] class extends Component {
     <!-- HEADER -->
     <x-header title="Form Distribution" separator>
         <x-slot:actions>
-            <x-button label="Back" @click="$wire.back" responsive icon="fas.arrow-left" />
+            <x-button label="Back" @click="$wire.back" responsive icon="fas.arrow-left" spinner="back" />
         </x-slot:actions>
     </x-header>
 

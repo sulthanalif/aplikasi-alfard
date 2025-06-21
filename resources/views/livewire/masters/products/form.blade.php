@@ -9,6 +9,10 @@
             <x-input label="Name" wire:model="name"  />
         </div>
 
+        <div>
+            <x-textarea label="Description" wire:model="description" rows="3" />
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
                 <x-choices-offline
@@ -32,9 +36,12 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
                 <x-input label="Price" wire:model="price" prefix="Rp"   />
+            </div>
+            <div>
+                <x-input label="Purchase Price" wire:model="purchase_price" prefix="Rp"   />
             </div>
             <div>
                 <x-input label="Stock" wire:model="stock" type="number"  />
