@@ -215,6 +215,7 @@ new #[Title('Detail Sales')] class extends Component {
             }
 
             DB::commit();
+            $this->reset('paymentSelected');
             $this->paymentSelected = $this->sales->payment ? $this->sales->payment->details->map(function ($payment) {
                 return [
                     'id' => $payment->id,
@@ -225,9 +226,9 @@ new #[Title('Detail Sales')] class extends Component {
                     'image' => $payment->image,
                 ];
             })->toArray() : [];
-            $this->success('Payment saved successfully.', position: 'toast-bottom');
             $this->reset('amount', 'method', 'bank', 'image', 'date', 'modalPayment', 'bankInput');
-            $this->funcPaymentSelected();
+            $this->amount = $this->sales->payment ? $this->sales->payment->remaining : $this->sales->total_price;
+            $this->success('Payment saved successfully.', position: 'toast-bottom');
         } catch (\Exeption $th) {
             DB::rollBack();
             $this->error('Failed to save payment.', position: 'toast-bottom');
@@ -355,7 +356,8 @@ new #[Title('Detail Sales')] class extends Component {
                 </x-card>
             </x-tab>
             <x-tab name="payment-tab" label="Payment">
-                <x-card>
+                <x-card title="Payment" subtitle="Total Price: Rp.{{ number_format($sales->total_price, 0, ',', '.') }}">
+
                     <x-table :headers="[
                         [
                             'key' => 'date',
@@ -391,6 +393,19 @@ new #[Title('Detail Sales')] class extends Component {
                             <p>-</p>
                         @endif
                     @endscope
+
+                    @if($sales->payment)
+                        <x-slot:footer>
+                            <tr>
+                                <td colspan="2">Total Paid</td>
+                                <td class="text-left">Rp {{ number_format($sales->payment?->details()->sum('amount'), 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Remaining</td>
+                                <td class="text-left">Rp {{ number_format($sales->payment?->remaining ?? $sales->total_price - $sales->payment?->details()->sum('amount'), 0, ',', '.') }}</td>
+                            </tr>
+                        </x-slot:footer>
+                    @endif
                     </x-table>
                     @if($this->sales->status == 'approved' && (!$this->sales->payment || $this->sales->payment?->remaining != 0))
                     <x-slot:actions>
@@ -415,7 +430,11 @@ new #[Title('Detail Sales')] class extends Component {
                             <div>
                                 <x-timeline-item title="Order placed"  first icon="o-map-pin" />
 
-                                <x-timeline-item title="Shipped" pending="{{ $sales->distribution?->status != 'pending' ? '' : true }}" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
+                                @if($sales->distribution?->status != 'pending')
+                                    <x-timeline-item title="Shipped" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
+                                @else
+                                    <x-timeline-item title="Shipped" pending subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
+                                @endif
 
                                 <x-timeline-item title="Delivered" pending="{{ $sales->distribution?->status == 'delivered' ? '' : true }}" subtitle="{{ $sales->distribution?->delivered_at ? 'Delivered at ' . \Carbon\Carbon::parse($sales->distribution?->delivered_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Delivered' }}" last icon="o-gift" />
                             </div>

@@ -30,7 +30,7 @@ class Status extends Component
             case 'shipped':
                 $this->status = [
                     'text' => 'Shipped',
-                    'class' => 'badge-info'
+                    'class' => 'badge-warning'
                 ];
                 break;
             case 'delivered':

@@ -93,13 +93,17 @@ new #[Title('Detail Distribution')] class extends Component {
             ->withAggregate('customer', 'name')
             ->withAggregate('actionBy', 'name')
             ->withAggregate('distribution', 'status')
-            ->whereHas('distribution', function ($query) {
-                $query->where('id', $this->distribution->distribution_id);
+            ->whereHas('distribution', function($query) {
+                $query->where('distribution_id', $this->distribution->id);
             })
-            ->where('invoice', 'like', "%{$this->search}%")
-            ->orWhere('date', 'like', "%{$this->search}%")
-            ->orWhereHas('customer', function($query) {
-                $query->where('name', 'like', "%{$this->search}%");
+            ->when($this->search, function($query) {
+                $query->where(function($q) {
+                    $q->where('invoice', 'like', "%{$this->search}%")
+                      ->orWhere('date', 'like', "%{$this->search}%")
+                      ->orWhereHas('customer', function($sq) {
+                          $sq->where('name', 'like', "%{$this->search}%");
+                      });
+                });
             })
             ->orderBy($this->sortBy['column'], $this->sortBy['direction'])
             ->paginate($this->perPage);
@@ -143,6 +147,9 @@ new #[Title('Detail Distribution')] class extends Component {
             </x-slot:actions>
         </x-card>
     </div>
+    <div class="flex justify-end items-center gap-5 mt-4">
+        <x-input placeholder="Search..." wire:model.live="search" clearable icon="o-magnifying-glass" />
+    </div>
     <div class="mt-4">
         <x-card title="Data Sales">
             <x-table :headers="[
@@ -159,14 +166,14 @@ new #[Title('Detail Distribution')] class extends Component {
                     'label' => 'Address',
                 ],
                 [
-                    'key' => 'distribution_status', 
+                    'key' => 'distribution_status',
                     'label' => 'Distribution Status'
                 ],
             ]" :rows="$dataSales" show-empty-text @row-click="$wire.detail($event.detail.id)">
                 @scope('cell_distribution_status', $data)
                 @if ($data->distribution_status)
                     <x-status :status="$data->distribution_status" />
-                @else 
+                @else
                     <x-status status="pending" />
                 @endif
             @endscope
@@ -185,7 +192,7 @@ new #[Title('Detail Distribution')] class extends Component {
                     'label' => 'Qty',
                 ],
             ]" :rows="$products" show-empty-text>
-            </x-table> 
+            </x-table>
         </x-card>
         <x-slot:actions>
             @if (!$this->isDelivered)
