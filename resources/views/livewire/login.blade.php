@@ -45,6 +45,7 @@ new #[Layout('components.layouts.guest')] #[Title('Login')] class extends Compon
             'time' => now()->toDateTimeString(),
         ]);
 
+
         $this->redirectIntended(default: route ('dashboard'), navigate: true);
     }
 
@@ -89,9 +90,9 @@ new #[Layout('components.layouts.guest')] #[Title('Login')] class extends Compon
                     <x-input label="Email" icon-right="o-user" type="email" wire:model="email"   autofocus />
                     <x-password label="Password" type="password" wire:model="password"  right />
                     <div class="flex justify-between items-center my-3">
-                        <x-toggle label="Ingat saya" wire:model="remember" />
-                        {{-- <a class=" cursor-pointer hover:underline" href="{{ route('forgot-password') }}"
-                            wire:navigate>Lupa Password?</a> --}}
+                        <x-toggle label="Remember me" wire:model="remember" />
+                        <a class=" cursor-pointer hover:underline" wire:navigate href="{{ route('register') }}"
+                            wire:navigate>Don't have an account?</a>
                     </div>
                     <x-slot:actions>
                         <x-button label="Login" class="btn-primary" type="submit" spinner="login" />

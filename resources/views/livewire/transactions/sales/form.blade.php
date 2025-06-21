@@ -24,8 +24,13 @@ new #[Title('Form Sales')] class extends Component {
     public array $productSelected = [];
     public float $total_price = 0;
 
+    public string $roleUser = '';
+    public string $route = '';
+
     public function mount(): void
     {
+        $this->roleUser = Auth::user()->roles->first()->name;
+        $this->route = $this->roleUser == 'customer' ? 'order' : 'sales';
         $this->date = now()->format('Y-m-d');
         $this->searchProduct();
         $this->searchCustomer();
@@ -38,7 +43,7 @@ new #[Title('Form Sales')] class extends Component {
 
     public function back(): void
     {
-        $this->redirect(route('sales'), navigate: true);
+        $this->redirect(route($this->route), navigate: true);
     }
 
     public function searchCustomer(string $value = '')
@@ -165,7 +170,7 @@ new #[Title('Form Sales')] class extends Component {
 
             DB::commit();
 
-            $this->success('Sales created successfully.', position: 'toast-bottom', redirectTo: route('sales'));
+            $this->success('Sales created successfully.', position: 'toast-bottom', redirectTo: route($this->route));
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->error('Failed to create sales.', position: 'toast-bottom');
@@ -177,7 +182,7 @@ new #[Title('Form Sales')] class extends Component {
 
 <div>
     <!-- HEADER -->
-    <x-header title="Form Sales" separator>
+    <x-header title="Form {{ $roleUser == 'customer' ? 'Order' : 'Sales' }}" separator>
         <x-slot:actions>
             <x-button label="Back" @click="$wire.back" responsive icon="fas.arrow-left" />
         </x-slot:actions>

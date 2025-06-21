@@ -14,14 +14,23 @@ new #[Title('Sales')] class extends Component {
     public array $sortBy = ['column' => 'date', 'direction' => 'desc'];
     public int $perPage = 10;
 
+    public string $roleUser = '';
+    public string $route = '';
+
+    public function mount(): void
+    {
+        $this->roleUser = Auth::user()->roles->first()->name;
+        $this->route = $this->roleUser == 'customer' ? 'order' : 'sales';
+    }
+
     public function create(): void
     {
-        $this->redirect(route('sales.form'), navigate: true);
+        $this->redirect(route($this->route.'.form'), navigate: true);
     }
 
     public function detail(Sales $sales): void
     {
-        $this->redirect(route('sales.detail', $sales), navigate: true);
+        $this->redirect(route($this->route.'.detail', $sales), navigate: true);
     }
 
     public function datas(): LengthAwarePaginator
@@ -53,17 +62,22 @@ new #[Title('Sales')] class extends Component {
 
     public function headers(): array
     {
-        return [
+        $array = [
             ['key' => 'date', 'label' => 'Date'],
             ['key' => 'invoice', 'label' => 'Invoice'],
-            ['key' => 'customer_name', 'label' => 'Customer'],
             ['key' => 'total_price', 'label' => 'Total Price'],
             ['key' => 'status', 'label' => 'Status'],
-            ['key' => 'payment_status', 'label' => 'Payment Status'],
+            ['key' => 'payment_status', 'label' => 'Payment Status'], 
             ['key' => 'distribution_status', 'label' => 'Distribution Status'],
-            ['key' => 'action_by_name', 'label' => 'Action by'],
             ['key' => 'created_at', 'label' => 'Created at'],
         ];
+
+        if ($this->roleUser !== 'customer') {
+            array_splice($array, 2, 0, [['key' => 'customer_name', 'label' => 'Customer']]);
+            array_splice($array, -1, 0, [['key' => 'action_by_name', 'label' => 'Action by']]);
+        }
+
+        return $array;
     }
 
     public function with(): array
@@ -78,7 +92,7 @@ new #[Title('Sales')] class extends Component {
 
 <div>
     <!-- HEADER -->
-    <x-header title="Sales" separator>
+    <x-header title="{{ $roleUser == 'customer' ? 'Order' : 'Sales' }}" separator>
         <x-slot:actions>
             <x-button label="Create" @click="$wire.create" responsive icon="fas.plus" spinner="create" />
         </x-slot:actions>

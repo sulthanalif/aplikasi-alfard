@@ -6,6 +6,7 @@ return [
         'title' => 'Dashboard',
         'icon' => 'fas.gauge',
         'link' => 'dashboard',
+        // 'icon-classes' => 'text-primary',
     ],
     [
         'type' => 'sub',
@@ -65,9 +66,16 @@ return [
     [
         'type' => 'item',
         'title' => 'Distributions',
-        'icon' => 'fas.truck-pickup',
+        'icon' => 'fas.truck-fast',
         'link' => 'distributions',
         'can'  => 'manage-distribution',
+    ],
+    [
+        'type' => 'item',
+        'title' => 'Order',
+        'icon' => 'fas.cart-shopping',
+        'link' => 'order',
+        'can'  => 'manage-order',
     ],
     [
         'type' => 'sub',

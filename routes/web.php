@@ -10,9 +10,13 @@ Route::get('/', function () {
 
 Route::group(['middleware' => 'guest'], function () {
     Volt::route('/login', 'login')->name('login');
+    Volt::route('/register', 'register')->name('register');
 });
 
-Route::group(['middleware' => 'auth'], function () {
+// Volt::route('/inactive', 'user-inactive')->name('user.inactive')->middleware('auth', 'user.active');
+
+Route::group(['middleware' => ['auth', 'userAccess']], function () {
+    Volt::route('/inactive', 'user-inactive')->name('user.inactive');
     Route::get('/logout', LogoutController::class)->name('logout');
 
     Volt::route('/dashboard', 'dashboard')->middleware('can:dashboard')->name('dashboard');
@@ -23,6 +27,10 @@ Route::group(['middleware' => 'auth'], function () {
         Volt::route('/products', 'masters.products.index')->middleware('can:manage-products')->name('products');
         Volt::route('/users', 'masters.users.index')->middleware('can:manage-users')->name('users');
     });
+
+    Volt::route('/order', 'transactions.sales.index')->middleware('can:manage-order')->name('order');
+    Volt::route('/order/form', 'transactions.sales.form')->middleware('can:manage-order')->name('order.form');
+    Volt::route('/order/{sales:invoice}/detail', 'transactions.sales.detail')->middleware('can:manage-order')->name('order.detail');
 
     Route::prefix('transactions')->group(function () {
         Volt::route('/sales', 'transactions.sales.index')->middleware('can:manage-sales')->name('sales');

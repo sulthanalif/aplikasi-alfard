@@ -36,8 +36,14 @@ new #[Title('Detail Sales')] class extends Component {
 
     public string $tabSelected = 'product-tab';
 
+    public string $roleUser = '';
+    public string $route = '';
+
     public function mount(Sales $sales): void
     {
+        $this->roleUser = Auth::user()->roles->first()->name;
+        $this->route = $this->roleUser == 'customer' ? 'order' : 'sales';
+
         $this->methods = collect([
             ['id' => 'cash', 'name' => 'cash'],
             ['id' => 'transfer', 'name' => 'transfer'],
@@ -120,7 +126,7 @@ new #[Title('Detail Sales')] class extends Component {
 
     public function back(): void
     {
-        $this->redirect(route('sales'), navigate: true);
+        $this->redirect(route($this->route), navigate: true);
     }
 
     public function action(string $action = ''): void
@@ -347,12 +353,14 @@ new #[Title('Detail Sales')] class extends Component {
                         @endif
                     </x-table>
 
-                    @if ($this->sales->status == 'pending')
-                    <x-slot:actions>
-                        <x-button label="Reject" class="btn-error text-white" @click="$js.rejected" responsive spinner="action('rejected')" />
-                        <x-button label="Approve" class="btn-success text-white" @click="$wire.action('approved')" responsive spinner="action('approved')" />
-                    </x-slot:actions>
-                    @endif
+                    @can('approve-sales')
+                        @if ($this->sales->status == 'pending')
+                        <x-slot:actions>
+                            <x-button label="Reject" class="btn-error text-white" @click="$js.rejected" responsive spinner="action('rejected')" />
+                            <x-button label="Approve" class="btn-success text-white" @click="$wire.action('approved')" responsive spinner="action('approved')" />
+                        </x-slot:actions>
+                        @endif
+                    @endcan
                 </x-card>
             </x-tab>
             <x-tab name="payment-tab" label="Payment">

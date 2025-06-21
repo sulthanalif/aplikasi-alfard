@@ -64,7 +64,7 @@ class DatabaseSeeder extends Seeder
         $permission_customer = [
             'dashboard',
             'transactions',
-            'manage-sales',
+            'manage-order',
             'payment',
         ];
 
