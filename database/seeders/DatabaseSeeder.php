@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
 
             'transactions',
             'manage-sales',
+            'manage-order',
             'approve-sales',
             'manage-po',
 
@@ -91,6 +92,28 @@ class DatabaseSeeder extends Seeder
             'manage-distribution',
         ];
 
+        $permission_manager = [
+            'dashboard',
+
+            'transactions',
+            'manage-sales',
+            'approve-sales',
+            'manage-po',
+
+            'manage-categories',
+            'manage-units',
+            'manage-products',
+
+            'payment',
+            'manage-distribution',
+            'approve-distribution',
+
+            'reports',
+            'sales-report',
+            'po-report',
+            'distribution-report',
+        ];
+
         $roleCustomer = Role::create(['name' => 'customer']);
         $roleCustomer->givePermissionTo($permission_customer);
 
@@ -98,10 +121,10 @@ class DatabaseSeeder extends Seeder
 
         $roleDriver->givePermissionTo($permission_driver);
 
-        $roleManager->givePermissionTo($permission_admin);
+        $roleManager->givePermissionTo($permission_manager);
 
         User::factory()->create([
-            'name' => 'Customer',
+            'name' => 'Customer1',
             'email' => 'customer@mail.com',
             'customer_id' => 'CUST001',
             'address' => 'Jl. Jend. Sudirman No. 1',
@@ -119,8 +142,13 @@ class DatabaseSeeder extends Seeder
         ])->assignRole($roleAdmin);
 
         User::factory()->create([
-            'name' => 'Driver',
+            'name' => 'Driver1',
             'email' => 'driver@mail.com',
+        ])->assignRole($roleDriver);
+
+        User::factory()->create([
+            'name' => 'Driver2',
+            'email' => 'driver2@mail.com',
         ])->assignRole($roleDriver);
 
         User::factory()->create([

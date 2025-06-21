@@ -33,13 +33,21 @@ new #[Title('Distributions')] class extends Component {
                 $query->where('user_id', $user->id);
             })
             ->withAggregate('driver', 'name')
-            ->where('number', 'like', "%{$this->search}%")
-            ->orWhere('date', 'like', "%{$this->search}%")
-            ->orWhereHas('driver', function ($query) {
-                $query->where('name', 'like', "%{$this->search}%")
-                    ->whereHas('roles', function($q) {
-                        $q->where('name', 'driver');
-                    });
+            ->where(function($query) use ($user) {
+                if ($user->hasRole('driver')) {
+                    $query->where('user_id', $user->id);
+                }
+
+                $query->where(function($q) {
+                    $q->where('number', 'like', "%{$this->search}%")
+                      ->orWhere('date', 'like', "%{$this->search}%")
+                      ->orWhereHas('driver', function ($subQ) {
+                          $subQ->where('name', 'like', "%{$this->search}%")
+                               ->whereHas('roles', function($roleQ) {
+                                   $roleQ->where('name', 'driver');
+                               });
+                      });
+                });
             })
             ->orderBy($this->sortBy['column'], $this->sortBy['direction'])
             ->paginate($this->perPage);
@@ -81,7 +89,9 @@ new #[Title('Distributions')] class extends Component {
     <!-- HEADER -->
     <x-header title="Distributions" separator>
         <x-slot:actions>
-            <x-button label="Create" @click="$wire.create" responsive icon="fas.plus" spinner="create" />
+            @can('approve-distribution')
+                <x-button label="Create" @click="$wire.create" responsive icon="fas.plus" spinner="create" />
+            @endcan
         </x-slot:actions>
     </x-header>
 
