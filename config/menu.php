@@ -74,19 +74,19 @@ return [
         'title' => 'Reports',
         'icon' => 'fas.file-lines',
         // 'link' => 'reports',
-        // 'can'  => 'reports',
+        'can'  => 'reports',
         'submenu' => [
             [
                 'title' => 'Sales',
                 'icon' => 'fas.file-lines',
                 'link' => 'sales-report',
-                // 'can'  => 'sales-report',
+                'can'  => 'sales-report',
             ],
             [
                 'title' => 'Purchase Order',
                 'icon' => 'fas.file-lines',
                 'link' => 'po-report',
-                // 'can'  => 'po-report',
+                'can'  => 'po-report',
             ],
             [
                 'title' => 'Distribution',

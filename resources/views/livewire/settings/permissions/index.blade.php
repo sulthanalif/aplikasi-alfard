@@ -1,11 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Log;
 use Mary\Traits\Toast;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Pagination\LengthAwarePaginator;
 

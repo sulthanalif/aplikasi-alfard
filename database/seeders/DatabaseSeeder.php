@@ -41,6 +41,11 @@ class DatabaseSeeder extends Seeder
             'payment',
             'manage-distribution',
             'approve-distribution',
+
+            'reports',
+            'sales-report',
+            'po-report',
+            'distribution-report',
         ];
 
         foreach ($permissions as $permission) {

@@ -16,9 +16,18 @@ class SalesDetail extends Model
         'sales_id', 'product_id', 'quantity', 'subtotal',
     ];
 
+    // protected $appends = [
+    //     'net_subtotal',
+    // ];
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getNetSubtotalAttribute()
+    {
+        return $this->subtotal - ($this->product->purchase_price * $this->quantity);
     }
 
     public function sales(): BelongsTo

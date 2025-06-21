@@ -25,6 +25,9 @@ class Sales extends Model
         'note',
     ];
 
+    // protected $appends = ['net_total'];
+
+
     protected static function boot()
     {
         parent::boot();
@@ -66,5 +69,14 @@ class Sales extends Model
     public function distribution(): HasOne
     {
         return $this->hasOne(DistributionDetail::class, 'sales_id', 'id');
+    }
+
+    public function getNetTotalAttribute()
+    {
+        $total = 0;
+        foreach ($this->details as $detail) {
+            $total += $detail->net_subtotal;
+        }
+        return $total;
     }
 }
