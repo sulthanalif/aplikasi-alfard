@@ -45,6 +45,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::prefix('reports')->group(function () {
         Volt::route('/sales', 'reports.sales.index')->middleware('can:sales-report')->name('sales-report');
-        Volt::route('/po', 'reports.po.index')->middleware('can:po-report')->name('po-report');
+        Volt::route('/expenditure', 'reports.po.index')->middleware('can:po-report')->name('po-report');
+        Volt::route('/distribution', 'reports.distribution.index')->middleware('can:distribution-report')->name('distribution-report');
     });
 });

@@ -83,7 +83,7 @@ return [
                 'can'  => 'sales-report',
             ],
             [
-                'title' => 'Purchase Order',
+                'title' => 'Expenditure',
                 'icon' => 'fas.file-lines',
                 'link' => 'po-report',
                 'can'  => 'po-report',
@@ -92,7 +92,7 @@ return [
                 'title' => 'Distribution',
                 'icon' => 'fas.file-lines',
                 'link' => 'distribution-report',
-                // 'can'  => 'distribution-report',
+                'can'  => 'distribution-report',
             ],
         ]
     ],

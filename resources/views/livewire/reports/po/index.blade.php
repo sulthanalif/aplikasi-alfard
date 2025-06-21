@@ -7,12 +7,12 @@ use App\Models\PurchaseOrder;
 use Livewire\Attributes\Title;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-new #[Title('Report PO')] class extends Component {
+new #[Title('Report Expenditure')] class extends Component {
      use Toast, WithPagination;
 
     public string $start_date, $end_date;
     public string $search = '';
-    public array $sortBy = ['column' => 'created_at', 'direction' => 'asc'];
+    public array $sortBy = ['column' => 'date', 'direction' => 'desc'];
     public int $perPage = 10;
 
     public function mount()
@@ -33,10 +33,10 @@ new #[Title('Report PO')] class extends Component {
 
         return [
             [
-                'title' => 'Total Purchase',
+                'title' => 'Total Expenditure',
                 'value' => 'Rp. '.number_format($total_purchase, 0, ',', '.'),
                 'icon' => 'fas.money-bill-wave',
-                'color' => 'success',
+                'color' => 'text-error',
             ],
         ];
     }
@@ -75,7 +75,7 @@ new #[Title('Report PO')] class extends Component {
 
 <div>
     <!-- HEADER -->
-    <x-header title="Report Purchase Order" separator>
+    <x-header title="Report Expenditure" separator>
         //
     </x-header>
 

@@ -5,6 +5,6 @@
         value="{{ $stat['value'] }}"
         icon="{{ $stat['icon'] }}"
         {{-- tooltip="{{ $tooltip }}" --}}
-        color="text-{{ $stat['color'] }}" />
+        color="{{ $stat['color'] }}" />
     @endforeach
 </div>

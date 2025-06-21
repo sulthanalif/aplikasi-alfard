@@ -195,7 +195,7 @@ new #[Title('Detail Distribution')] class extends Component {
             </x-table>
         </x-card>
         <x-slot:actions>
-            @if (!$this->isDelivered)
+            @if (!$this->isDelivered && $this->distribution?->status)
                 <x-button label="Delivered" wire:click="delivered({{ $this->id }})" spinner="delivered({{$this->id}})" class="btn-primary" />
             @endif
         </x-slot:actions>

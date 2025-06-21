@@ -13,7 +13,7 @@ new #[Title('Report Sales')] class extends Component {
 
     public string $start_date, $end_date;
     public string $search = '';
-    public array $sortBy = ['column' => 'created_at', 'direction' => 'asc'];
+    public array $sortBy = ['column' => 'date', 'direction' => 'desc'];
     public int $perPage = 10;
 
     public function mount()
@@ -62,25 +62,25 @@ new #[Title('Report Sales')] class extends Component {
                 'title' => 'Total Income',
                 'value' => 'Rp. ' . number_format($total_income, 0, ',', '.'),
                 'icon' => 'fas.money-bill-wave',
-                'color' => 'success',
+                'color' => 'text-success',
             ],
             [
                 'title' => 'Total Payment',
                 'value' => 'Rp. ' . number_format($total_paid, 0, ',', '.'),
                 'icon' => 'fas.money-bill-wave',
-                'color' => 'success',
+                'color' => 'text-success',
             ],
             [
                 'title' => 'Total Remaining Payment',
                 'value' => 'Rp. ' . number_format($total_unpaid, 0, ',', '.'),
                 'icon' => 'fas.money-bill-wave',
-                'color' => 'error',
+                'color' => 'text-error',
             ],
             [
                 'title' => 'Total Net Income',
                 'value' => 'Rp. ' . number_format($total_net_income, 0, ',', '.'),
                 'icon' => 'fas.money-bill-wave',
-                'color' => 'success',
+                'color' => 'text-success',
             ],
         ];
     }
