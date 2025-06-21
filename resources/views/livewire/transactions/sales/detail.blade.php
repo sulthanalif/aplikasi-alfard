@@ -227,6 +227,7 @@ new #[Title('Detail Sales')] class extends Component {
             })->toArray() : [];
             $this->success('Payment saved successfully.', position: 'toast-bottom');
             $this->reset('amount', 'method', 'bank', 'image', 'date', 'modalPayment', 'bankInput');
+            $this->funcPaymentSelected();
         } catch (\Exeption $th) {
             DB::rollBack();
             $this->error('Failed to save payment.', position: 'toast-bottom');
@@ -385,7 +386,7 @@ new #[Title('Detail Sales')] class extends Component {
                     @endscope
                     @scope('cell_image', $payment)
                         @if($payment['image'] != '-')
-                            <img src="{{ asset('storage/'.$payment['image']) }}" class="h-40 rounded-lg">
+                            <img src="{{ asset('storage/'.$payment['image']) }}" class="w-20 rounded-lg" style="width: 100px" >
                         @else
                             <p>-</p>
                         @endif
@@ -414,8 +415,8 @@ new #[Title('Detail Sales')] class extends Component {
                             <div>
                                 <x-timeline-item title="Order placed"  first icon="o-map-pin" />
 
-                                <x-timeline-item title="Shipped" pending="{{ $sales->distribution?->status == 'shipped' || 'delivered' ? '' : true }}" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
-                                
+                                <x-timeline-item title="Shipped" pending="{{ $sales->distribution?->status != 'pending' ? '' : true }}" subtitle="{{$sales->distribution?->shipment_at ?  'Shipped at ' . \Carbon\Carbon::parse($sales->distribution?->shipment_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Shipped' }}" icon="o-paper-airplane" />
+
                                 <x-timeline-item title="Delivered" pending="{{ $sales->distribution?->status == 'delivered' ? '' : true }}" subtitle="{{ $sales->distribution?->delivered_at ? 'Delivered at ' . \Carbon\Carbon::parse($sales->distribution?->delivered_at)->locale('id')->translatedFormat('d F Y H:i') : 'Not Delivered' }}" last icon="o-gift" />
                             </div>
                         </div>
