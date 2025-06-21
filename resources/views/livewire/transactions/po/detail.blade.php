@@ -29,7 +29,7 @@ new #[Title('Detail Purchase Order')] class extends Component {
                 'product_id' => $detail->product_id,
                 'name' => $detail->product->name.' ('.$detail->product->code.')',
                 'unit' => $detail->product->unit->name,
-                'price' => $detail->price,
+                'price' => $detail->product->purchase_price,
                 'qty' => $detail->quantity,
                 'subtotal' => $detail->subtotal,
             ];

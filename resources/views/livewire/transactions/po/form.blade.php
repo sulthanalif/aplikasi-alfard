@@ -67,7 +67,7 @@ new #[Title('Form Purchase Order')] class extends Component {
                 'product_id' => $product->id,
                 'name' => "{$product->name} ({$product->code})",
                 'unit' => $product->unit->name,
-                'price' => $product->price,
+                'price' => $product->purchase_price,
                 'qty' => 1,
                 'subtotal' => 0, // sementara
             ];
@@ -128,7 +128,7 @@ new #[Title('Form Purchase Order')] class extends Component {
                     'purchase_order_id' => $po->id,
                     'product_id' => $prod['product_id'],
                     'quantity' => $prod['qty'],
-                    'price' => $prod['price'],
+                    // 'price' => $prod['price'],
                     'subtotal' => $prod['subtotal'],
                 ]);
 
@@ -224,7 +224,7 @@ new #[Title('Form Purchase Order')] class extends Component {
                                 wire:change="recalculateSubtotal({{ $data['product_id'] }})" class="w-12" />
                         @endscope
                         @scope('cell_price', $data)
-                            <x-input type="number" wire:model.live="productSelected.{{ $loop->index }}.price" min="0" wire:change="recalculateSubtotal({{ $data['product_id'] }})" class="w-32" />
+                            <p>Rp {{ number_format($data['price'], 0, ',', '.') }}</p>
                         @endscope
                         @scope('cell_subtotal', $data)
                             <p>Rp {{ number_format($data['subtotal'], 0, ',', '.') }}</p>
