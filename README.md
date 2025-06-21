@@ -24,25 +24,25 @@ Aplikasi Penjualan adalah aplikasi web berbasis Laravel yang dirancang untuk men
 1.  Clone repositori:
 
     ```bash
-git clone https://github.com/username/aplikasi-alfard.git aplikasi-penjualan
+    git clone https://github.com/username/aplikasi-alfard.git aplikasi-penjualan
     ```
 
 2.  Pindah ke direktori proyek:
 
     ```bash
-cd aplikasi-penjualan
+    cd aplikasi-penjualan
     ```
 
 3.  Instal dependensi Composer:
 
     ```bash
-composer install
+    composer install
     ```
 
 4.  Salin file `.env.example` ke `.env` dan konfigurasi database:
 
     ```bash
-cp .env.example .env
+    cp .env.example .env
     ```
 
     Edit file `.env` dan masukkan detail database Anda.
@@ -50,19 +50,19 @@ cp .env.example .env
 5.  Generate key aplikasi:
 
     ```bash
-php artisan key:generate
+    php artisan key:generate
     ```
 
 6.  Migrasi database:
 
     ```bash
-php artisan migrate
+    php artisan migrate
     ```
 
 7.  Seed database (opsional):
 
     ```bash
-php artisan db:seed
+    php artisan db:seed
     ```
 
 ## Penggunaan
@@ -70,7 +70,7 @@ php artisan db:seed
 1.  Jalankan server pengembangan:
 
     ```bash
-php artisan serve
+    php artisan serve
     ```
 
 2.  Buka aplikasi di browser Anda: `http://localhost:8000`
