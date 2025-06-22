@@ -1,5 +1,8 @@
+
+
 @php
     $menuItems = config('menu');
+    $user_new = App\Models\User::where('is_new', 1)->count();
 
     function resolve_link($link)
     {
@@ -35,6 +38,8 @@
             <x-menu-item
                 title="{{ $item['title'] }}"
                 icon="{{ $item['icon'] }}"
+                badge="{{ $item['title'] == 'Customers' ? $user_new : '' }}"
+                badge-classes="badge-soft badge-error"
                 icon-classes="{{ $item['icon-classes'] ?? '' }}"
                 link="{{ resolve_link($item['link']) }}"
             />
