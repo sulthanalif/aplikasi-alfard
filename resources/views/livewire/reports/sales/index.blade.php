@@ -5,7 +5,9 @@ use Mary\Traits\Toast;
 use App\Models\SalesDetail;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use App\Exports\DynamicExport;
 use Livewire\Attributes\Title;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 new #[Title('Report Sales')] class extends Component {
@@ -23,11 +25,46 @@ new #[Title('Report Sales')] class extends Component {
         $this->end_date = now()->endOfMonth()->toDateString();
 
         // dd($this->start_date);
+        // $this->export();
     }
 
     public function detail(Sales $sales): void
     {
         $this->redirect(route('sales.detail', $sales), navigate: true);
+    }
+
+    public function export()
+    {
+        $title = 'Report Sales '. $this->start_date . ' to ' . $this->end_date;
+
+        $stats = array_map(function($item) {
+            return [$item['title'] => $item['value']];
+        }, $this->stats());
+
+        $data = $this->datas()->getCollection()->map(function($sale) {
+            return [
+                'date' => $sale->date,
+                'invoice' => $sale->invoice,
+                'customer' => $sale->customer_name,
+                'total_price' => $sale->total_price,
+                'total_net_income' => $sale->details->sum('net_subtotal'),
+                'payment' => $sale->payment?->details->sum('amount') ?? 0,
+                'payment_remaining' => $sale->payment?->remaining ?? $sale->total_price
+            ];
+        });
+
+        $headers = [
+            'Date',
+            'Invoice',
+            'Customer',
+            'Total Price',
+            'Total Net Income',
+            'Payment',
+            'Payment Remaining',
+        ];
+        // dd($data);
+
+        return Excel::download(new DynamicExport($title, $stats, $data, $headers), $title . '.xlsx');
     }
 
     public function stats(): array
@@ -128,7 +165,9 @@ new #[Title('Report Sales')] class extends Component {
 <div>
     <!-- HEADER -->
     <x-header title="Report Sales" separator>
-        //
+        <x-slot:actions>
+            <x-button wire:click="export" label="Export" icon="fas.download" spinner="export" />
+        </x-slot:actions>
     </x-header>
 
     <div class="flex justify-end items-center gap-5 mb-4">

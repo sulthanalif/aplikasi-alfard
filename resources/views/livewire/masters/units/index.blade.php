@@ -3,16 +3,20 @@
 use App\Models\Unit;
 use Mary\Traits\Toast;
 use App\Exports\ExportDatas;
+use App\Imports\ImportDatas;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Traits\CreateOrUpdate;
+use App\Exports\ExportDatasTemplate;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Title;
 
-new class extends Component {
+new #[Title('Units')] class extends Component {
     use Toast, CreateOrUpdate, WithPagination;
 
     public bool $modal = false;
+    public bool $modalImport = false;
 
     public string $search = '';
     public array $sortBy = ['column' => 'created_at', 'direction' => 'asc'];
@@ -25,6 +29,27 @@ new class extends Component {
     public function mount(): void
     {
         $this->setModel(new Unit());
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new ExportDatasTemplate($this->model, 'Units Template', ['status']), 'template-units.xlsx');
+    }
+
+    public function import()
+    {
+        $this->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new ImportDatas($this->model, ['status']), $this->file);
+
+            $this->success('Data imported successfully!', position: 'toast-bottom');
+        } catch (\Exception $e) {
+            $this->logError($e);
+            $this->error('Failed to import data.', position: 'toast-bottom');
+        }
     }
 
     public function export()
@@ -126,6 +151,7 @@ new class extends Component {
 <!-- HEADER -->
     <x-header title="Units" separator>
         <x-slot:actions>
+            <x-button label="Import" @click="$wire.modalImport = true" responsive icon="fas.file-import" spinner="import" />
             <x-button label="Export" @click="$wire.export" responsive icon="fas.file-export" spinner="export" />
             <x-button label="Create" @click="$js.create" responsive icon="fas.plus" />
         </x-slot:actions>
@@ -149,4 +175,5 @@ new class extends Component {
     </x-card>
 
     @include('livewire.masters.units.form')
+    <x-modalimport wire:model="modalImport" />
 </div>

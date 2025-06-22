@@ -5,19 +5,22 @@ use Mary\Traits\Toast;
 use App\Models\Product;
 use App\Models\Category;
 use App\Exports\ExportDatas;
+use App\Imports\ImportDatas;
 use App\Traits\LogFormatter;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Traits\CreateOrUpdate;
 use Livewire\Attributes\Title;
 use Illuminate\Support\Collection;
+use App\Exports\ExportDatasTemplate;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 new #[Title('Products')] class extends Component {
-    use Toast, CreateOrUpdate, WithPagination;
+    use Toast, CreateOrUpdate, WithPagination, LogFormatter;
 
     public bool $modal = false;
+    public bool $modalImport = false;
 
     public string $search = '';
     public array $sortBy = ['column' => 'created_at', 'direction' => 'asc'];
@@ -43,6 +46,62 @@ new #[Title('Products')] class extends Component {
         $this->searchUnit();
     }
 
+    public function downloadTemplate()
+    {
+        return Excel::download(new ExportDatasTemplate($this->model, 'Products Template', ['status', 'image']), 'template-products.xlsx');
+    }
+
+    public function import()
+    {
+        $this->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new ImportDatas($this->model, ['status', 'image']), $this->file);
+
+            $this->success('Data imported successfully!', position: 'toast-bottom');
+        } catch (\Exception $e) {
+            $this->logError($e);
+            $this->error('Failed to import data.', position: 'toast-bottom');
+        }
+    }
+
+    public function export()
+    {
+        $datas = $this->model->all();
+
+        if (empty($datas)) return $this->error('No data found!', position: 'toast-bottom');
+
+        try {
+            $datas = $datas->map(function ($data) {
+               return [
+                    'code' => $data->code,
+                    'name' => $data->name,
+                    'description' => $data->description,
+                    'category' => $data->category->name,
+                    'unit' => $data->unit->name,
+                    'price' => $data->price,
+                    'purchase_price' => $data->purchase_price,
+                    'stock' => $data->stock,
+                    'status' => $data->status ? 'Active' : 'Inactive',
+                    'created_at' => $data->created_at,
+                ];
+            });
+
+            $headers = [
+                'CODE', 'NAME', 'DESCRIPTION', 'CATEGORY', 'UNIT', 'PRICE', 'PURCHASE PRICE', 'STOCK', 'STATUS', 'CREATED_AT'
+            ];
+
+            $this->success('Data exported successfully!', position: 'toast-bottom');
+            return Excel::download(new ExportDatas($datas, 'Products', $headers), 'products.xlsx');
+
+        } catch (\Exception $e) {
+            $this->logError($e);
+            $this->error('Failed to export data!', position: 'toast-bottom');
+        }
+    }
+
     public function searchCategory(string $value = '')
     {
         $selectedOption = Category::where('id', $this->category_id)->get();
@@ -63,42 +122,6 @@ new #[Title('Products')] class extends Component {
             ->orderBy('name')
             ->get()
             ->merge($selectedOption);
-    }
-
-    public function export()
-    {
-        $datas = $this->model->all();
-
-        if (empty($datas)) return $this->error('No data found!', position: 'toast-bottom');
-
-        try {
-            $datas = $datas->map(function ($data) {
-               return [
-                    'code' => $data->code,
-                    'name' => $data->name,
-                    // 'description' => $data->description,
-                    'category' => $data->category->name,
-                    'unit' => $data->unit->name,
-                    'price' => $data->price,
-                    'purchase_price' => $data->purchase_price,
-                    'stock' => $data->stock,
-                    'status' => $data->status ? 'Active' : 'Inactive',
-                    'created_at' => $data->created_at,
-                ];
-            });
-
-            $headers = [
-                'CODE', 'NAME', 'CATEGORY', 'UNIT', 'PRICE', 'PURCHASE PRICE', 'STOCK', 'STATUS', 'CREATED_AT'
-            ];
-
-            $this->success('Data exported successfully!', position: 'toast-bottom');
-            return Excel::download(new ExportDatas($datas, 'Products', $headers), 'products.xlsx');
-
-        } catch (\Exception $e) {
-            $this->logError($e);
-
-            $this->error('Failed to export data!', position: 'toast-bottom');
-        }
     }
 
     public function save(): void
@@ -199,6 +222,7 @@ new #[Title('Products')] class extends Component {
     <!-- HEADER -->
     <x-header title="Products" separator>
         <x-slot:actions>
+            <x-button label="Import" @click="$wire.modalImport = true" responsive icon="fas.file-import" spinner="import" />
             <x-button label="Export" @click="$wire.export" responsive icon="fas.file-export" spinner="export" />
             <x-button label="Create" @click="$js.create" responsive icon="fas.plus" />
         </x-slot:actions>
@@ -228,4 +252,5 @@ new #[Title('Products')] class extends Component {
     </x-card>
 
     @include('livewire.masters.products.form')
+    <x-modalimport wire:model="modalImport" />
 </div>

@@ -47,12 +47,6 @@ new #[Title('Categories')] class extends Component {
             'file' => 'required|file|mimes:xlsx,xls',
         ]);
 
-        // // Debug file
-        // dd([
-        //     'file' => $this->file,
-        //     'name' => $this->file?->getClientOriginalName(),
-        // ]);
-
         try {
             Excel::import(new ImportDatas(new Category(), ['slug', 'status']), $this->file);
 

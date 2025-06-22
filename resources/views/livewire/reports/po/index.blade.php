@@ -4,7 +4,9 @@ use Mary\Traits\Toast;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use App\Models\PurchaseOrder;
+use App\Exports\DynamicExport;
 use Livewire\Attributes\Title;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 new #[Title('Report Expenditure')] class extends Component {
@@ -24,6 +26,32 @@ new #[Title('Report Expenditure')] class extends Component {
     public function detail(PurchaseOrder $po): void
     {
         $this->redirect(route('po.detail', $po), navigate: true);
+    }
+
+    public function export()
+    {
+        $title = 'Report Expenditure '. $this->start_date . ' to ' . $this->end_date;
+
+        $stats = array_map(function($item) {
+            return [$item['title'] => $item['value']];
+        }, $this->stats());
+
+        $data = $this->datas()->getCollection()->map(function($sale) {
+            return [
+                'date' => $sale->date,
+                'invoice' => $sale->invoice,
+                'total_price' => $sale->total_price,
+            ];
+        });
+
+        $headers = [
+            'Date',
+            'Invoice',
+            'Total Price',
+        ];
+        // dd($data);
+
+        return Excel::download(new DynamicExport($title, $stats, $data, $headers), $title . '.xlsx');
     }
 
     public function stats(): array
@@ -76,7 +104,9 @@ new #[Title('Report Expenditure')] class extends Component {
 <div>
     <!-- HEADER -->
     <x-header title="Report Expenditure" separator>
-        //
+        <x-slot:actions>
+            <x-button wire:click="export" label="Export" icon="fas.download" spinner="export" />
+        </x-slot:actions>
     </x-header>
 
     <div class="flex justify-end items-center gap-5 mb-4">
