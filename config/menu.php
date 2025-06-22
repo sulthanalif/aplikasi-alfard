@@ -78,6 +78,13 @@ return [
         'can'  => 'manage-order',
     ],
     [
+        'type' => 'item',
+        'title' => 'Customers',
+        'icon' => 'fas.users',
+        'link' => 'customers',
+        'can'  => 'manage-customers',
+    ],
+    [
         'type' => 'sub',
         'title' => 'Reports',
         'icon' => 'fas.file-lines',

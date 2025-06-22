@@ -27,9 +27,10 @@ new #[Title('Users')] class extends Component {
     public string $name = '';
     public string $email = '';
     public string $password = '';
+    public bool $status = true;
     public string $role = '';
     public ?int $role_searchable_id = null;
-    public array $varUser = ['id', 'name', 'email', 'role', 'role_searchable_id'];
+    public array $varUser = ['id', 'name', 'email', 'status', 'role', 'role_searchable_id'];
 
     // Options list
     public Collection $rolesSearchable;
@@ -119,6 +120,7 @@ new #[Title('Users')] class extends Component {
             ['key' => 'name', 'label' => 'Name', 'class' => 'w-64'],
             ['key' => 'email', 'label' => 'E-mail', 'sortable' => false],
             ['key' => 'role', 'label' => 'Role', 'sortable' => false],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => false],
             ['key' => 'created_at', 'label' => 'Created at', 'class' => 'w-64'],
         ];
     }
@@ -158,6 +160,7 @@ new #[Title('Users')] class extends Component {
             $wire.name = '';
             $wire.email = '';
             $wire.password = '';
+            $wire.status = true;
             $wire.$refresh();
         });
 
@@ -166,6 +169,7 @@ new #[Title('Users')] class extends Component {
             $wire.id = user.id;
             $wire.name = user.name;
             $wire.email = user.email;
+            $wire.status = user.status;
             $wire.role_searchable_id = user.roles[0].id;
             $wire.password = '';
             $wire.$refresh();
@@ -191,6 +195,9 @@ new #[Title('Users')] class extends Component {
             with-pagination @row-click="$js.edit($event.detail)">
             @scope('cell_role', $data)
                 <p>{{ $data->getRoleNames()->first() }}</p>
+            @endscope
+            @scope('cell_status', $data)
+                <x-status :status="$data->status ? 'active' : 'inactive'" />
             @endscope
         </x-table>
     </x-card>
@@ -219,6 +226,10 @@ new #[Title('Users')] class extends Component {
                 search-function="searchRole"
                 single
                 searchable />
+            </div>
+
+            <div class="mt-4">
+                <x-toggle label="Status" wire:model="status" hint="If checked, is active" />
             </div>
 
             <x-slot:actions>

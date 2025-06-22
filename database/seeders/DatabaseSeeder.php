@@ -39,6 +39,8 @@ class DatabaseSeeder extends Seeder
             'manage-units',
             'manage-products',
 
+            'manage-customers',
+
             'payment',
             'manage-distribution',
             'approve-distribution',
@@ -72,6 +74,7 @@ class DatabaseSeeder extends Seeder
         $permission_admin = [
             'dashboard',
 
+            'manage-customers',
             'transactions',
             'manage-sales',
             'manage-po',
@@ -95,6 +98,7 @@ class DatabaseSeeder extends Seeder
         $permission_manager = [
             'dashboard',
 
+            'manage-customers',
             'transactions',
             'manage-sales',
             'approve-sales',

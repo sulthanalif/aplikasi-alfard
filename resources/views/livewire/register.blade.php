@@ -38,6 +38,7 @@ new #[Layout('components.layouts.guest')] #[Title('Register')] class extends Com
                 'address' => $this->address,
                 'phone' => $this->phone,
                 'status' => false,
+                'is_new' => true,
             ]);
 
             $user->assignRole('customer');

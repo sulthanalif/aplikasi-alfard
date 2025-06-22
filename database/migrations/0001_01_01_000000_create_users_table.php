@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('status')->default(true);
+            $table->boolean('is_new')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
