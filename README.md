@@ -14,6 +14,8 @@ Aplikasi Penjualan adalah aplikasi web berbasis Laravel yang dirancang untuk men
 ## Teknologi yang Digunakan
 
 -   [Laravel](https://laravel.com/) - Framework PHP
+-   [MySQL](https://www.mysql.com/) - Database
+-   [Node.js](https://nodejs.org/) - JavaScript runtime environment
 -   [Livewire](https://livewire.laravel.com/) - Full-stack framework untuk Laravel
 -   [Mary UI](https://mary-ui.com/) - Komponen UI untuk Livewire
 -   [Maatwebsite Excel](https://docs.laravel-excel.com/) - Library untuk impor dan ekspor Excel
@@ -33,10 +35,12 @@ Aplikasi Penjualan adalah aplikasi web berbasis Laravel yang dirancang untuk men
     cd aplikasi-penjualan
     ```
 
-3.  Instal dependensi Composer:
+3.  Instal dependensi Composer & Node:
 
     ```bash
-    composer install
+    composer install && npm install
+
+    npm run build
     ```
 
 4.  Salin file `.env.example` ke `.env` dan konfigurasi database:
