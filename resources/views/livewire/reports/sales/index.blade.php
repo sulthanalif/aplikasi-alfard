@@ -35,7 +35,8 @@ new #[Title('Report Sales')] class extends Component {
 
     public function export()
     {
-        $title = 'Report Sales '. $this->start_date . ' to ' . $this->end_date;
+        $title = 'Laporan Sales';
+        $periode = \Carbon\Carbon::parse($this->start_date)->locale('id')->translatedFormat('d F Y') . ' - ' . \Carbon\Carbon::parse($this->end_date)->locale('id')->translatedFormat('d F Y');
 
         $stats = array_map(function($item) {
             return [$item['title'] => $item['value']];
@@ -64,7 +65,7 @@ new #[Title('Report Sales')] class extends Component {
         ];
         // dd($data);
 
-        return Excel::download(new DynamicExport($title, $stats, $data, $headers), $title . '.xlsx');
+        return Excel::download(new DynamicExport($title, $periode, $stats, $data, $headers), $title . ' ' . $periode . '.xlsx');
     }
 
     public function stats(): array
